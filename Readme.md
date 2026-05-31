@@ -75,12 +75,6 @@ Aunque las ramas están organizadas por integrante, el avance del proyecto se di
 
 ```txt
 Smart-Pharmacy/
-├── docs/
-│   └── sprints/
-│       ├── sprint-01.md
-│       ├── sprint-02.md
-│       ├── sprint-03.md
-│       └── sprint-04.md
 │
 ├── database/
 │   └── smartpharmacy_schema.sql
