@@ -89,6 +89,10 @@
   .compact-role-list {
     grid-template-columns: 1fr;
   }
+
+  .form-full {
+    grid-column: auto;
+  }
 }
 
 @media (max-width: 680px) {

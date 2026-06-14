@@ -3,11 +3,21 @@ import {
   FileText,
   Bot,
   ShieldCheck,
+  Pill,
+  Boxes,
 } from 'lucide-react';
 
+type Page =
+  | 'dashboard'
+  | 'record'
+  | 'assistant'
+  | 'roles'
+  | 'medicines'
+  | 'inventory';
+
 interface SidebarProps {
-  currentPage: string;
-  onNavigate: (page: any) => void;
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
 }
 
 function Sidebar({ currentPage, onNavigate }: SidebarProps) {
@@ -49,6 +59,22 @@ function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         >
           <ShieldCheck className="nav-icon" />
           Roles y permisos
+        </button>
+
+        <button
+          className={currentPage === 'medicines' ? 'active' : ''}
+          onClick={() => onNavigate('medicines')}
+        >
+          <Pill className="nav-icon" />
+          Medicamentos
+        </button>
+
+        <button
+          className={currentPage === 'inventory' ? 'active' : ''}
+          onClick={() => onNavigate('inventory')}
+        >
+          <Boxes className="nav-icon" />
+          Inventario
         </button>
       </nav>
     </aside>

@@ -304,3 +304,16 @@ tbody tr:hover {
   border-color: #fecaca;
   color: #b91c1c;
 }
+
+.status-badge.warning {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.status-badge.warning::before {
+  background: #f97316;
+}
+
+.inventory-summary-grid {
+  margin-bottom: 24px;
+}

@@ -124,3 +124,7 @@
 .icon-input input {
   padding-left: 44px;
 }
+
+.form-full {
+  grid-column: span 2;
+}
