@@ -1,11 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, FileHeart, UserRound } from 'lucide-react';
-import { patientsMock } from '../../mocks/patients.mock';
+
+import type { Patient } from '../../shared/types';
+import { getPatients } from './services/patients.service';
 
 function PatientRecordPage() {
   const [search, setSearch] = useState('');
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const filteredPatients = patientsMock.filter((patient) =>
+  useEffect(() => {
+    async function loadPatients() {
+      try {
+        setLoading(true);
+        setErrorMessage('');
+
+        const data = await getPatients();
+
+        setPatients(data);
+      } catch {
+        setErrorMessage('No fue posible cargar los expedientes clínicos.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPatients();
+  }, []);
+
+  const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(search.toLowerCase()) ||
     patient.recordNumber.toLowerCase().includes(search.toLowerCase())
   );
@@ -20,7 +44,7 @@ function PatientRecordPage() {
         <div>
           <h1>Expediente Clínico Digital</h1>
           <p className="page-description">
-            HU-02: Consulta del historial clínico del paciente.
+            HU-02: Consulta del historial clínico del paciente desde MySQL.
           </p>
         </div>
       </div>
@@ -31,44 +55,54 @@ function PatientRecordPage() {
           type="text"
           placeholder="Buscar por nombre o número de expediente"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
         />
       </div>
 
-      <div className="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th>Expediente</th>
-              <th>Paciente</th>
-              <th>Edad</th>
-              <th>Diagnóstico</th>
-              <th>Alergias</th>
-              <th>Último tratamiento</th>
-            </tr>
-          </thead>
+      {loading && (
+        <div className="state-card">Cargando expedientes clínicos...</div>
+      )}
 
-          <tbody>
-            {filteredPatients.map((patient) => (
-              <tr key={patient.id}>
-                <td>{patient.recordNumber}</td>
-                <td>
-                  <div className="table-user">
-                    <div className="table-avatar">
-                      <UserRound size={16} />
-                    </div>
-                    {patient.name}
-                  </div>
-                </td>
-                <td>{patient.age}</td>
-                <td>{patient.diagnosis}</td>
-                <td>{patient.allergies}</td>
-                <td>{patient.lastTreatment}</td>
+      {errorMessage && (
+        <div className="state-card error">{errorMessage}</div>
+      )}
+
+      {!loading && !errorMessage && (
+        <div className="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Expediente</th>
+                <th>Paciente</th>
+                <th>Edad</th>
+                <th>Diagnóstico</th>
+                <th>Alergias</th>
+                <th>Último tratamiento</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+
+            <tbody>
+              {filteredPatients.map((patient) => (
+                <tr key={patient.id}>
+                  <td>{patient.recordNumber}</td>
+                  <td>
+                    <div className="table-user">
+                      <div className="table-avatar">
+                        <UserRound size={16} />
+                      </div>
+                      {patient.name}
+                    </div>
+                  </td>
+                  <td>{patient.age ?? 'N/A'}</td>
+                  <td>{patient.diagnosis}</td>
+                  <td>{patient.allergies}</td>
+                  <td>{patient.lastTreatment}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

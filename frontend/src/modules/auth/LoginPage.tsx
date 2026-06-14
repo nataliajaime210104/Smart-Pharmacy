@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ArrowRight,
   Bot,
@@ -9,11 +10,40 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
+import type { User } from '../../shared/types';
+import { login } from './services/auth.service';
+
 interface LoginPageProps {
-  onLogin: () => void;
+  onLogin: (user: User) => void;
 }
 
 function LoginPage({ onLogin }: LoginPageProps) {
+  const [email, setEmail] = useState('natalia@hospital.com');
+  const [password, setPassword] = useState('12345678');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      setLoading(true);
+      setErrorMessage('');
+
+      const response = await login(email, password);
+
+      onLogin(response.user);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible iniciar sesión.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-page">
       <div className="login-background-glow glow-one"></div>
@@ -78,55 +108,73 @@ function LoginPage({ onLogin }: LoginPageProps) {
         </section>
 
         <section className="login-card">
-          <div className="login-card-header">
-            <img
-              className="login-logo"
-              src="/assets/logo/smartpharmacy-logo.png"
-              alt="SmartPharmacy"
-            />
+          <form onSubmit={handleLogin}>
+            <div className="login-card-header">
+              <img
+                className="login-logo"
+                src="/assets/logo/smartpharmacy-logo.png"
+                alt="SmartPharmacy"
+              />
 
-            <h2>Bienvenido</h2>
-            <p>Inicia sesión para acceder al panel médico.</p>
-          </div>
-
-          <div className="form-group">
-            <label>Correo institucional</label>
-
-            <div className="login-input-wrapper">
-              <Mail size={18} />
-              <input type="email" placeholder="medico@hospital.com" />
+              <h2>Bienvenido</h2>
+              <p>Inicia sesión para acceder al panel médico.</p>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label>Contraseña</label>
+            {errorMessage && (
+              <div className="login-error">
+                {errorMessage}
+              </div>
+            )}
 
-            <div className="login-input-wrapper">
-              <LockKeyhole size={18} />
-              <input type="password" placeholder="********" />
+            <div className="form-group">
+              <label>Correo institucional</label>
+
+              <div className="login-input-wrapper">
+                <Mail size={18} />
+                <input
+                  type="email"
+                  placeholder="medico@hospital.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="login-options">
-            <label className="remember-option">
-              <input type="checkbox" />
-              Recordar sesión
-            </label>
+            <div className="form-group">
+              <label>Contraseña</label>
 
-            <button type="button" className="link-button">
-              Recuperar acceso
+              <div className="login-input-wrapper">
+                <LockKeyhole size={18} />
+                <input
+                  type="password"
+                  placeholder="********"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="login-options">
+              <label className="remember-option">
+                <input type="checkbox" />
+                Recordar sesión
+              </label>
+
+              <button type="button" className="link-button">
+                Recuperar acceso
+              </button>
+            </div>
+
+            <button className="login-submit-button" type="submit" disabled={loading}>
+              {loading ? 'Validando...' : 'Iniciar sesión'}
+              <ArrowRight size={18} />
             </button>
-          </div>
 
-          <button className="login-submit-button" onClick={onLogin}>
-            Iniciar sesión
-            <ArrowRight size={18} />
-          </button>
-
-          <div className="login-demo-note">
-            <ShieldCheck size={17} />
-            <span>Maquetado HU-01: Autenticación segura del médico</span>
-          </div>
+            <div className="login-demo-note">
+              <ShieldCheck size={17} />
+              <span>Maquetado HU-01 conectado a Laravel y MySQL</span>
+            </div>
+          </form>
         </section>
       </div>
     </div>

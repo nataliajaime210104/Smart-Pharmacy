@@ -668,6 +668,22 @@ tbody tr:hover {
 
 /* LOGIN */
 
+.login-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.login-submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -967,6 +983,23 @@ tbody tr:hover {
 .login-demo-note svg {
   color: var(--secondary);
   flex-shrink: 0;
+}
+
+/*ESTADOS DE CARGA*/
+.state-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  color: var(--muted);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.state-card.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
 }
 
 /* RESPONSIVE */

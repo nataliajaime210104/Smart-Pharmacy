@@ -10,7 +10,7 @@ export interface Patient {
   id: number;
   recordNumber: string;
   name: string;
-  age: number;
+  age: number | null;
   diagnosis: string;
   allergies: string;
   lastTreatment: string;
@@ -20,4 +20,15 @@ export interface AiQuestion {
   id: number;
   question: string;
   answer: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message: string;
+  user: User;
 }

@@ -1,10 +1,12 @@
 import { LogOut, Stethoscope } from 'lucide-react';
+import type { User } from '../types';
 
 interface NavbarProps {
   onLogout: () => void;
+  user: User;
 }
 
-function Navbar({ onLogout }: NavbarProps) {
+function Navbar({ onLogout, user }: NavbarProps) {
   return (
     <header className="navbar">
       <div className="navbar-title">
@@ -14,7 +16,9 @@ function Navbar({ onLogout }: NavbarProps) {
 
         <div>
           <h2>Panel Médico</h2>
-          <span>Hospital General / SmartPharmacy</span>
+          <span>
+            {user.name} / {user.role}
+          </span>
         </div>
       </div>
 

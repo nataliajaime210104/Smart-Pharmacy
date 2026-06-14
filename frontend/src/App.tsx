@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import type { User } from './shared/types';
+
 import LoginPage from './modules/auth/LoginPage';
 import Layout from './shared/components/Layout';
 import DoctorDashboardPage from './modules/doctor/DoctorDashboardPage';
@@ -9,11 +11,11 @@ import RolesPermissionsPage from './modules/admin/RolesPermissionsPage';
 type Page = 'dashboard' | 'record' | 'assistant' | 'roles';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
 
-  if (!isLoggedIn) {
-    return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
+  if (!currentUser) {
+    return <LoginPage onLogin={setCurrentUser} />;
   }
 
   const renderPage = () => {
@@ -32,13 +34,7 @@ function App() {
   };
 
   return (
-    <Layout
-      currentPage={currentPage}
-      onNavigate={setCurrentPage}
-      onLogout={() => setIsLoggedIn(false)}
-    >
-      {renderPage()}
-    </Layout>
+    <Layout currentPage={currentPage} onNavigate={setCurrentPage} onLogout={() => setCurrentUser(null)} user={currentUser}> {renderPage()} </Layout>
   );
 }
 
