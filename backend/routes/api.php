@@ -14,5 +14,10 @@ Route::get('/health', function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::get('/patients', [PatientController::class, 'index']);
+
 Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+Route::put('/users/{user}', [UserController::class, 'update']);
+Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate']);

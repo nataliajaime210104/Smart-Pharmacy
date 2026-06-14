@@ -1,5 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api';
 
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+
+    throw new Error(
+      errorData?.message ?? 'Ocurrió un error al comunicarse con la API.'
+    );
+  }
+
+  return response.json();
+}
+
 export async function apiGet<T>(endpoint: string): Promise<T> {
   const response = await fetch(`${API_URL}${endpoint}`, {
     headers: {
@@ -7,11 +19,7 @@ export async function apiGet<T>(endpoint: string): Promise<T> {
     },
   });
 
-  if (!response.ok) {
-    throw new Error('Error al consultar la API.');
-  }
-
-  return response.json();
+  return handleResponse<T>(response);
 }
 
 export async function apiPost<T>(endpoint: string, data: unknown): Promise<T> {
@@ -24,13 +32,31 @@ export async function apiPost<T>(endpoint: string, data: unknown): Promise<T> {
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
+  return handleResponse<T>(response);
+}
 
-    throw new Error(
-      errorData?.message ?? 'Error al enviar información a la API.'
-    );
-  }
+export async function apiPut<T>(endpoint: string, data: unknown): Promise<T> {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
 
-  return response.json();
+  return handleResponse<T>(response);
+}
+
+export async function apiPatch<T>(endpoint: string, data?: unknown): Promise<T> {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: data ? JSON.stringify(data) : undefined,
+  });
+
+  return handleResponse<T>(response);
 }

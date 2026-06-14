@@ -1,9 +1,17 @@
+export type UserRole =
+  | 'Medico'
+  | 'Paciente'
+  | 'Administrador Farmacia'
+  | 'Administrador Sistema';
+
+export type UserStatus = 'Activo' | 'Inactivo';
+
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'Medico' | 'Paciente' | 'Administrador Farmacia' | 'Administrador Sistema';
-  status: 'Activo' | 'Inactivo';
+  role: UserRole;
+  status: UserStatus;
 }
 
 export interface Patient {
@@ -24,6 +32,7 @@ export interface AiQuestion {
 
 export interface ApiResponse<T> {
   success: boolean;
+  message?: string;
   data: T;
 }
 
@@ -31,4 +40,12 @@ export interface LoginResponse {
   success: boolean;
   message: string;
   user: User;
+}
+
+export interface UserFormData {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  status: UserStatus;
 }

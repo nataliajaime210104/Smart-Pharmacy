@@ -6,32 +6,66 @@ import {
   Stethoscope,
   Pill,
   HeartPulse,
+  Save,
+  RotateCcw,
+  UserPlus,
+  Pencil,
+  UserX,
+  X,
 } from 'lucide-react';
 
-import type { User } from '../../shared/types';
-import { getUsers } from './services/users.service';
+import type { User, UserFormData, UserRole, UserStatus } from '../../shared/types';
+import {
+  createUser,
+  deactivateUser,
+  getUsers,
+  updateUser,
+} from './services/users.service';
+
+const emptyForm: UserFormData = {
+  name: '',
+  email: '',
+  password: '',
+  role: 'Paciente',
+  status: 'Activo',
+};
+
+const roles: UserRole[] = [
+  'Medico',
+  'Paciente',
+  'Administrador Farmacia',
+  'Administrador Sistema',
+];
+
+const statuses: UserStatus[] = ['Activo', 'Inactivo'];
 
 function RolesPermissionsPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [formData, setFormData] = useState<UserFormData>(emptyForm);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  async function loadUsers() {
+    try {
+      setLoading(true);
+      setErrorMessage('');
+
+      const data = await getUsers();
+      setUsers(data);
+    } catch {
+      setErrorMessage('No fue posible cargar los usuarios.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadUsers() {
-      try {
-        setLoading(true);
-        setErrorMessage('');
-
-        const data = await getUsers();
-
-        setUsers(data);
-      } catch {
-        setErrorMessage('No fue posible cargar los usuarios.');
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadUsers();
   }, []);
 
@@ -39,21 +73,274 @@ function RolesPermissionsPage() {
     if (role === 'Medico') return <Stethoscope size={16} />;
     if (role === 'Paciente') return <HeartPulse size={16} />;
     if (role === 'Administrador Farmacia') return <Pill size={16} />;
+
     return <UserCog size={16} />;
+  };
+
+  const getPermissions = (role: string) => {
+    if (role === 'Medico') return 'Expedientes, Recetas, Seguimiento';
+    if (role === 'Paciente') return 'Tratamientos, Calendario, Asistente IA';
+    if (role === 'Administrador Farmacia') return 'Inventario, Reabastecimiento';
+
+    return 'Usuarios, Roles, Auditoría';
+  };
+
+  const handleChange = (field: keyof UserFormData, value: string) => {
+    setFormData((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
+  const openCreateForm = () => {
+    setEditingUser(null);
+    setFormData(emptyForm);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormData(emptyForm);
+    setEditingUser(null);
+    setErrorMessage('');
+    setSuccessMessage('');
+    setIsFormOpen(false);
+  };
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      password: '',
+      role: user.role,
+      status: user.status,
+    });
+
+    setErrorMessage('');
+    setSuccessMessage('');
+    setIsFormOpen(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      setSaving(true);
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      if (editingUser) {
+        await updateUser(editingUser.id, formData);
+        setSuccessMessage('Usuario actualizado correctamente.');
+      } else {
+        await createUser(formData);
+        setSuccessMessage('Usuario creado correctamente.');
+      }
+
+      await loadUsers();
+
+      setTimeout(() => {
+        closeForm();
+      }, 700);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible guardar el usuario.'
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeactivate = async (user: User) => {
+    const confirmDeactivate = window.confirm(
+      `¿Deseas desactivar al usuario ${user.name}?`
+    );
+
+    if (!confirmDeactivate) {
+      return;
+    }
+
+    try {
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      await deactivateUser(user.id);
+      setSuccessMessage('Usuario desactivado correctamente.');
+      await loadUsers();
+    } catch {
+      setErrorMessage('No fue posible desactivar el usuario.');
+    }
   };
 
   return (
     <div>
-      <div className="page-title-row">
-        <div className="page-icon">
-          <ShieldCheck size={28} />
+      <div className="page-header-with-action">
+        <div className="page-title-row">
+          <div className="page-icon">
+            <ShieldCheck size={28} />
+          </div>
+
+          <div>
+            <h1>Usuarios, Roles y Permisos</h1>
+            <p className="page-description">
+              HU-16 y HU-17: Administración de cuentas del sistema, asignación de roles,
+              edición de usuarios y control de acceso por perfil.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <h1>Roles y Permisos</h1>
-          <p className="page-description">
-            HU-17: Control de acceso por perfil consultado desde MySQL.
-          </p>
+        <button type="button" onClick={openCreateForm}>
+          <UserPlus size={18} />
+          Nuevo usuario
+        </button>
+      </div>
+
+      {errorMessage && !isFormOpen && (
+        <div className="form-alert error">{errorMessage}</div>
+      )}
+
+      {successMessage && !isFormOpen && (
+        <div className="form-alert success">{successMessage}</div>
+      )}
+
+      {isFormOpen && (
+        <div className="form-drawer">
+          <div className="form-drawer-header">
+            <div className="section-heading">
+              {editingUser ? <Pencil size={24} /> : <UserPlus size={24} />}
+              <h3>{editingUser ? 'Editar usuario' : 'Registrar nuevo usuario'}</h3>
+            </div>
+
+            <button type="button" className="icon-close-button" onClick={closeForm}>
+              <X size={20} />
+            </button>
+          </div>
+
+          {errorMessage && (
+            <div className="form-alert error">{errorMessage}</div>
+          )}
+
+          {successMessage && (
+            <div className="form-alert success">{successMessage}</div>
+          )}
+
+          <form onSubmit={handleSubmit} className="user-form">
+            <div className="form-drawer-grid">
+              <div className="form-group">
+                <label>Nombre completo</label>
+                <input
+                  type="text"
+                  placeholder="Ejemplo: Dra. Natalia Jaime"
+                  value={formData.name}
+                  onChange={(event) => handleChange('name', event.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Correo institucional</label>
+                <input
+                  type="email"
+                  placeholder="usuario@hospital.com"
+                  value={formData.email}
+                  onChange={(event) => handleChange('email', event.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Contraseña {editingUser && <span className="label-hint">(opcional)</span>}
+                </label>
+                <input
+                  type="password"
+                  placeholder={
+                    editingUser
+                      ? 'Dejar vacío para conservar la contraseña'
+                      : 'Mínimo 8 caracteres'
+                  }
+                  value={formData.password}
+                  onChange={(event) => handleChange('password', event.target.value)}
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Rol</label>
+                  <select
+                    value={formData.role}
+                    onChange={(event) =>
+                      handleChange('role', event.target.value as UserRole)
+                    }
+                  >
+                    {roles.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Estado</label>
+                  <select
+                    value={formData.status}
+                    onChange={(event) =>
+                      handleChange('status', event.target.value as UserStatus)
+                    }
+                  >
+                    {statuses.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" disabled={saving}>
+                <Save size={18} />
+                {saving
+                  ? 'Guardando...'
+                  : editingUser
+                    ? 'Actualizar usuario'
+                    : 'Crear usuario'}
+              </button>
+
+              <button type="button" className="secondary-button" onClick={closeForm}>
+                <RotateCcw size={18} />
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="compact-role-panel">
+        <div className="section-heading">
+          <ShieldCheck size={24} />
+          <h3>Perfiles del sistema</h3>
+        </div>
+
+        <div className="compact-role-list">
+          {roles.map((role) => (
+            <div className="compact-role-item" key={role}>
+              <span className="role-badge">
+                {getRoleIcon(role)}
+                {role}
+              </span>
+              <p>{getPermissions(role)}</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -61,12 +348,8 @@ function RolesPermissionsPage() {
         <div className="state-card">Cargando usuarios del sistema...</div>
       )}
 
-      {errorMessage && (
-        <div className="state-card error">{errorMessage}</div>
-      )}
-
-      {!loading && !errorMessage && (
-        <div className="table-card">
+      {!loading && (
+        <div className="table-card users-table">
           <table>
             <thead>
               <tr>
@@ -75,6 +358,7 @@ function RolesPermissionsPage() {
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Permisos principales</th>
+                <th>Acciones</th>
               </tr>
             </thead>
 
@@ -89,21 +373,52 @@ function RolesPermissionsPage() {
                       {user.name}
                     </div>
                   </td>
+
                   <td>{user.email}</td>
+
                   <td>
                     <span className="role-badge">
                       {getRoleIcon(user.role)}
                       {user.role}
                     </span>
                   </td>
+
                   <td>
-                    <span className="status-badge">{user.status}</span>
+                    <span
+                      className={
+                        user.status === 'Activo'
+                          ? 'status-badge'
+                          : 'status-badge inactive'
+                      }
+                    >
+                      {user.status}
+                    </span>
                   </td>
+
+                  <td>{getPermissions(user.role)}</td>
+
                   <td>
-                    {user.role === 'Medico' && 'Expedientes, Recetas, Seguimiento'}
-                    {user.role === 'Paciente' && 'Tratamientos, Calendario, Asistente IA'}
-                    {user.role === 'Administrador Farmacia' && 'Inventario, Reabastecimiento'}
-                    {user.role === 'Administrador Sistema' && 'Usuarios, Roles, Auditoría'}
+                    <div className="table-actions">
+                      <button
+                        type="button"
+                        className="small-button"
+                        onClick={() => handleEdit(user)}
+                      >
+                        <Pencil size={15} />
+                        Editar
+                      </button>
+
+                      {user.status === 'Activo' && (
+                        <button
+                          type="button"
+                          className="small-button danger"
+                          onClick={() => handleDeactivate(user)}
+                        >
+                          <UserX size={15} />
+                          Desactivar
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
