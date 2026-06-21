@@ -9,6 +9,7 @@ import AiAssistantPage from './modules/ai-assistant/AiAssistantPage';
 import RolesPermissionsPage from './modules/admin/RolesPermissionsPage';
 import MedicinesPage from './modules/pharmacy/MedicinesPage';
 import InventoryPage from './modules/pharmacy/InventoryPage';
+import PrescriptionsPage from './modules/doctor/PrescriptionsPage';
 
 type Page =
   | 'dashboard'
@@ -16,7 +17,8 @@ type Page =
   | 'assistant'
   | 'roles'
   | 'medicines'
-  | 'inventory';
+  | 'inventory'
+  | 'prescriptions';
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -45,6 +47,9 @@ function App() {
 
       case 'inventory':
         return <InventoryPage />;
+
+      case 'prescriptions':
+        return <PrescriptionsPage currentUser={currentUser} />;
 
       default:
         return <DoctorDashboardPage />;

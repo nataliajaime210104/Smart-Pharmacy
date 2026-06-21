@@ -5,6 +5,7 @@ import {
   ShieldCheck,
   Pill,
   Boxes,
+  ClipboardList,
 } from 'lucide-react';
 
 type Page =
@@ -13,7 +14,8 @@ type Page =
   | 'assistant'
   | 'roles'
   | 'medicines'
-  | 'inventory';
+  | 'inventory'
+  | 'prescriptions';
 
 interface SidebarProps {
   currentPage: Page;
@@ -75,6 +77,13 @@ function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         >
           <Boxes className="nav-icon" />
           Inventario
+        </button>
+        <button
+          className={currentPage === 'prescriptions' ? 'active' : ''}
+          onClick={() => onNavigate('prescriptions')}
+        >
+          <ClipboardList className="nav-icon" />
+          Recetas
         </button>
       </nav>
     </aside>

@@ -149,3 +149,13 @@
     overflow-x: auto;
   }
 }
+
+@media (max-width: 800px) {
+  .signature-prescription-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .signature-modal-card {
+    padding: 20px;
+  }
+}

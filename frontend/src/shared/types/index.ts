@@ -5,8 +5,6 @@ export type UserRole =
   | 'Administrador Sistema';
 
 export type UserStatus = 'Activo' | 'Inactivo';
-export type MedicineStatus = 'Activo' | 'Inactivo';
-export type InventoryStatus = 'Activo' | 'Inactivo';
 
 export interface User {
   id: number;
@@ -14,12 +12,24 @@ export interface User {
   email: string;
   role: UserRole;
   status: UserStatus;
+  patientAge?: number | null;
+}
+
+export interface UserFormData {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  status: UserStatus;
+  patientAge?: number | '';
 }
 
 export interface Patient {
   id: number;
+  userId?: number | null;
   recordNumber: string;
   name: string;
+  email?: string | null;
   age: number | null;
   diagnosis: string;
   allergies: string;
@@ -44,13 +54,8 @@ export interface LoginResponse {
   user: User;
 }
 
-export interface UserFormData {
-  name: string;
-  email: string;
-  password: string;
-  role: UserRole;
-  status: UserStatus;
-}
+export type MedicineStatus = 'Activo' | 'Inactivo';
+export type InventoryStatus = 'Activo' | 'Inactivo';
 
 export interface Medicine {
   id: number;
@@ -97,4 +102,74 @@ export interface InventoryFormData {
   location: string;
   expirationDate: string;
   status: InventoryStatus;
+}
+
+export type PrescriptionStatus =
+  | 'Borrador'
+  | 'Firmada'
+  | 'Cancelada'
+  | 'Dispensada';
+
+export interface PrescriptionItem {
+  id: number;
+  medicineId: number;
+  medicineCode: string;
+  medicineName: string;
+  quantity: number;
+  dosage: string | null;
+  frequency: string | null;
+  duration: string | null;
+  instructions: string | null;
+}
+
+export interface Prescription {
+  id: number;
+  folio: string;
+  patientId: number;
+  patientName: string;
+  doctorId: number;
+  doctorName: string;
+  diagnosis: string | null;
+  notes: string | null;
+  status: PrescriptionStatus;
+  signedAt: string | null;
+  signedByName: string | null;
+  signatureHash: string | null;
+  verificationCode: string | null;
+  signatureImagePath: string | null;
+  pdfUrl: string | null;
+  createdAt: string | null;
+  items: PrescriptionItem[];
+}
+
+export interface PrescriptionItemFormData {
+  medicineId: number;
+  quantity: number;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  instructions: string;
+}
+
+export interface PrescriptionFormData {
+  patientId: number;
+  doctorId: number;
+  diagnosis: string;
+  notes: string;
+  items: PrescriptionItemFormData[];
+}
+
+export interface StockCheckItem {
+  medicineId: number;
+  medicineName: string;
+  requestedQuantity: number;
+  availableStock: number;
+  isAvailable: boolean;
+}
+
+export interface StockCheckResponse {
+  success: boolean;
+  canCreate: boolean;
+  message?: string;
+  data: StockCheckItem[];
 }

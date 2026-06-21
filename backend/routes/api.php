@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MedicineController;
 use App\Http\Controllers\Api\InventoryController;
+use App\Http\Controllers\Api\PrescriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -34,3 +35,9 @@ Route::get('/inventory/low-stock', [InventoryController::class, 'lowStock']);
 Route::post('/inventory', [InventoryController::class, 'store']);
 Route::put('/inventory/{inventory}', [InventoryController::class, 'update']);
 Route::patch('/inventory/{inventory}/deactivate', [InventoryController::class, 'deactivate']);
+
+Route::get('/prescriptions', [PrescriptionController::class, 'index']);
+Route::post('/prescriptions/check-stock', [PrescriptionController::class, 'checkStock']);
+Route::post('/prescriptions', [PrescriptionController::class, 'store']);
+Route::post('/prescriptions/{prescription}/sign', [PrescriptionController::class, 'sign']);
+Route::get('/prescriptions/{prescription}/pdf', [PrescriptionController::class, 'pdf']);

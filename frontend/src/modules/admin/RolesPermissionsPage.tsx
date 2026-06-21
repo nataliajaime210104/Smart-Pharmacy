@@ -28,6 +28,7 @@ const emptyForm: UserFormData = {
   password: '',
   role: 'Paciente',
   status: 'Activo',
+  patientAge: '',
 };
 
 const roles: UserRole[] = [
@@ -85,7 +86,10 @@ function RolesPermissionsPage() {
     return 'Usuarios, Roles, Auditoría';
   };
 
-  const handleChange = (field: keyof UserFormData, value: string) => {
+  const handleChange = (
+    field: keyof UserFormData,
+    value: string | number
+  ) => {
     setFormData((current) => ({
       ...current,
       [field]: value,
@@ -116,6 +120,7 @@ function RolesPermissionsPage() {
       password: '',
       role: user.role,
       status: user.status,
+      patientAge: user.patientAge ?? '',
     });
 
     setErrorMessage('');
@@ -128,6 +133,16 @@ function RolesPermissionsPage() {
     });
   };
 
+  const buildDataToSave = (): UserFormData => {
+    return {
+      ...formData,
+      patientAge:
+        formData.role === 'Paciente' && formData.patientAge !== ''
+          ? Number(formData.patientAge)
+          : undefined,
+    };
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -136,11 +151,13 @@ function RolesPermissionsPage() {
       setErrorMessage('');
       setSuccessMessage('');
 
+      const dataToSave = buildDataToSave();
+
       if (editingUser) {
-        await updateUser(editingUser.id, formData);
+        await updateUser(editingUser.id, dataToSave);
         setSuccessMessage('Usuario actualizado correctamente.');
       } else {
-        await createUser(formData);
+        await createUser(dataToSave);
         setSuccessMessage('Usuario creado correctamente.');
       }
 
@@ -271,6 +288,25 @@ function RolesPermissionsPage() {
                 />
               </div>
 
+              {formData.role === 'Paciente' && (
+                <div className="form-group">
+                  <label>Edad del paciente</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={120}
+                    placeholder="Ejemplo: 28"
+                    value={formData.patientAge ?? ''}
+                    onChange={(event) =>
+                      handleChange(
+                        'patientAge',
+                        event.target.value === '' ? '' : Number(event.target.value)
+                      )
+                    }
+                  />
+                </div>
+              )}
+
               <div className="form-row">
                 <div className="form-group">
                   <label>Rol</label>
@@ -357,6 +393,7 @@ function RolesPermissionsPage() {
                 <th>Correo</th>
                 <th>Rol</th>
                 <th>Estado</th>
+                <th>Edad</th>
                 <th>Permisos principales</th>
                 <th>Acciones</th>
               </tr>
@@ -393,6 +430,12 @@ function RolesPermissionsPage() {
                     >
                       {user.status}
                     </span>
+                  </td>
+
+                  <td>
+                    {user.role === 'Paciente'
+                      ? user.patientAge ?? 'Sin registrar'
+                      : 'No aplica'}
                   </td>
 
                   <td>{getPermissions(user.role)}</td>

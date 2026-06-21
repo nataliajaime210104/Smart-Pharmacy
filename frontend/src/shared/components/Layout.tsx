@@ -4,15 +4,30 @@ import type { User } from '../types';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 
+type Page =
+  | 'dashboard'
+  | 'record'
+  | 'assistant'
+  | 'roles'
+  | 'medicines'
+  | 'inventory'
+  | 'prescriptions';
+
 interface LayoutProps {
   children: ReactNode;
-  currentPage: string;
-  onNavigate: (page: any) => void;
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
   onLogout: () => void;
   user: User;
 }
 
-function Layout({ children, currentPage, onNavigate, onLogout, user }: LayoutProps) {
+function Layout({
+  children,
+  currentPage,
+  onNavigate,
+  onLogout,
+  user,
+}: LayoutProps) {
   return (
     <div className="app-layout">
       <Sidebar currentPage={currentPage} onNavigate={onNavigate} />

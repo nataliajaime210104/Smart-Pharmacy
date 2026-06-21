@@ -317,3 +317,16 @@ tbody tr:hover {
 .inventory-summary-grid {
   margin-bottom: 24px;
 }
+
+.signature-hash {
+  display: inline-flex;
+  align-items: center;
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: monospace;
+}
