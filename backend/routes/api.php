@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MedicineController;
 use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\PrescriptionController;
+use App\Http\Controllers\Api\AiAssistantController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -43,3 +44,5 @@ Route::post('/prescriptions', [PrescriptionController::class, 'store']);
 Route::post('/prescriptions/{prescription}/sign', [PrescriptionController::class, 'sign']);
 Route::post('/prescriptions/{prescription}/dispense', [PrescriptionController::class, 'dispense']);
 Route::get('/prescriptions/{prescription}/pdf', [PrescriptionController::class, 'pdf']);
+
+Route::post('/ai-assistant/ask', [AiAssistantController::class, 'ask']);    

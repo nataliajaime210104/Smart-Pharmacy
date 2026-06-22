@@ -77,10 +77,20 @@ export interface PatientPrescription {
   items: PatientPrescriptionItem[];
 }
 
-export interface AiQuestion {
+export interface AiAssistantMessage {
   id: number;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AiAssistantRequest {
   question: string;
+  patientId?: number | null;
+}
+
+export interface AiAssistantResponse {
   answer: string;
+  source: 'gemini' | 'local' | 'safety_rules';
 }
 
 export interface ApiResponse<T> {

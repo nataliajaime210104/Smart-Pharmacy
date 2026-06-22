@@ -531,3 +531,131 @@ tbody tr:hover {
   margin: 8px 0 0 0;
   color: #334155;
 }
+
+.ai-safety-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+  padding: 18px;
+  border-radius: 18px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.ai-safety-card p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.ai-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.ai-side-panel,
+.ai-chat-panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-info-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  margin: 14px 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.ai-info-box.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.ai-info-box p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.ai-chat-header {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+
+.ai-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-bottom: 18px;
+}
+
+.ai-message {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ai-message.user {
+  flex-direction: row-reverse;
+}
+
+.ai-message-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: #e0f2fe;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ai-message.user .ai-message-avatar {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.ai-message-content {
+  max-width: 78%;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  border-radius: 18px;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.ai-message.user .ai-message-content {
+  background: #ede9fe;
+  border-color: #ddd6fe;
+}
+
+.ai-input-area {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.ai-input-area textarea {
+  min-height: 76px;
+  resize: vertical;
+}

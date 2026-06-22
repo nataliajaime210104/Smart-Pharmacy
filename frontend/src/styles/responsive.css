@@ -181,3 +181,17 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 1000px) {
+  .ai-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-input-area {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-message-content {
+    max-width: 88%;
+  }
+}
