@@ -34,6 +34,7 @@ import { getMedicines } from '../pharmacy/services/pharmacy.service';
 import {
   checkPrescriptionStock,
   createPrescription,
+  dispensePrescription,
   getPrescriptionPdfUrl,
   getPrescriptions,
   signPrescription,
@@ -80,12 +81,14 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
   const [isSignatureOpen, setIsSignatureOpen] = useState(false);
   const [selectedPrescription, setSelectedPrescription] =
     useState<Prescription | null>(null);
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
   const [signing, setSigning] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dispensingId, setDispensingId] = useState<number | null>(null);
 
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -447,8 +450,47 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
     }
   };
 
+  const handleDispensePrescription = async (prescription: Prescription) => {
+    const confirmed = window.confirm(
+      `¿Deseas dispensar la receta ${prescription.folio}? Esta acción descontará el inventario disponible.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDispensingId(prescription.id);
+      setErrorMessage('');
+      setSuccessMessage('');
+
+      await dispensePrescription(prescription.id);
+      await loadData();
+
+      setSuccessMessage(
+        'Receta dispensada correctamente. El inventario fue actualizado.'
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible dispensar la receta.'
+      );
+    } finally {
+      setDispensingId(null);
+    }
+  };
+
   const openPrescriptionPdf = (prescription: Prescription) => {
     window.open(getPrescriptionPdfUrl(prescription.id), '_blank');
+  };
+
+  const getStatusClassName = (status: Prescription['status']) => {
+    if (status === 'Firmada' || status === 'Dispensada') {
+      return 'status-badge';
+    }
+
+    return 'status-badge warning';
   };
 
   return (
@@ -534,7 +576,7 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
               </div>
 
               <div className="form-group form-full">
-                <label>Diagnóstico</label>
+                <label>Diagnóstico de consulta</label>
                 <input
                   type="text"
                   placeholder="Ejemplo: Infección respiratoria"
@@ -564,7 +606,10 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
               </div>
 
               {formData.items.map((item, index) => {
-                const availableStock = getMedicineAvailableStock(item.medicineId);
+                const availableStock = getMedicineAvailableStock(
+                  item.medicineId
+                );
+
                 const hasLowStock =
                   item.medicineId > 0 && item.quantity > availableStock;
 
@@ -632,7 +677,11 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
                           placeholder="Ejemplo: 1 tableta"
                           value={item.dosage}
                           onChange={(event) =>
-                            handleItemChange(index, 'dosage', event.target.value)
+                            handleItemChange(
+                              index,
+                              'dosage',
+                              event.target.value
+                            )
                           }
                         />
                       </div>
@@ -660,7 +709,11 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
                           placeholder="Ejemplo: 5 días"
                           value={item.duration}
                           onChange={(event) =>
-                            handleItemChange(index, 'duration', event.target.value)
+                            handleItemChange(
+                              index,
+                              'duration',
+                              event.target.value
+                            )
                           }
                         />
                       </div>
@@ -827,13 +880,7 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
                   </td>
 
                   <td>
-                    <span
-                      className={
-                        prescription.status === 'Firmada'
-                          ? 'status-badge'
-                          : 'status-badge warning'
-                      }
-                    >
+                    <span className={getStatusClassName(prescription.status)}>
                       {prescription.status}
                     </span>
                   </td>
@@ -866,6 +913,33 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
                       )}
 
                       {prescription.status === 'Firmada' && (
+                        <>
+                          <button
+                            type="button"
+                            className="small-button"
+                            onClick={() => openPrescriptionPdf(prescription)}
+                          >
+                            <Download size={15} />
+                            PDF
+                          </button>
+
+                          <button
+                            type="button"
+                            className="small-button"
+                            disabled={dispensingId === prescription.id}
+                            onClick={() =>
+                              handleDispensePrescription(prescription)
+                            }
+                          >
+                            <CheckCircle size={15} />
+                            {dispensingId === prescription.id
+                              ? 'Dispensando...'
+                              : 'Dispensar'}
+                          </button>
+                        </>
+                      )}
+
+                      {prescription.status === 'Dispensada' && (
                         <button
                           type="button"
                           className="small-button"

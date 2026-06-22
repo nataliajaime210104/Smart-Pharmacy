@@ -328,4 +328,82 @@ class PrescriptionController extends Controller
             })->toArray(),
         ];
     }
+
+    public function dispense(Prescription $prescription)
+    {
+        if ($prescription->status === 'Dispensada') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Esta receta ya fue dispensada anteriormente.',
+            ], 422);
+        }
+
+        if ($prescription->status !== 'Firmada') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden dispensar recetas firmadas.',
+            ], 422);
+        }
+
+        $prescription->load([
+            'patient.user',
+            'doctor',
+            'items.medicine',
+        ]);
+
+        DB::transaction(function () use ($prescription) {
+            foreach ($prescription->items as $item) {
+                $remainingQuantity = $item->quantity;
+
+                $inventories = Inventory::where('medicine_id', $item->medicine_id)
+                    ->where('status', 'Activo')
+                    ->where('stock', '>', 0)
+                    ->orderByRaw('expiration_date IS NULL')
+                    ->orderBy('expiration_date', 'asc')
+                    ->orderBy('id', 'asc')
+                    ->lockForUpdate()
+                    ->get();
+
+                $availableStock = $inventories->sum('stock');
+
+                if ($availableStock < $remainingQuantity) {
+                    throw ValidationException::withMessages([
+                        'inventory' => 'No hay inventario suficiente para dispensar ' .
+                            ($item->medicine?->name ?? 'este medicamento') .
+                            '. Disponible: ' . $availableStock .
+                            ', solicitado: ' . $remainingQuantity . '.',
+                    ]);
+                }
+
+                foreach ($inventories as $inventory) {
+                    if ($remainingQuantity <= 0) {
+                        break;
+                    }
+
+                    $quantityToDiscount = min($inventory->stock, $remainingQuantity);
+
+                    $inventory->decrement('stock', $quantityToDiscount);
+
+                    $remainingQuantity -= $quantityToDiscount;
+                }
+            }
+
+            $prescription->update([
+                'status' => 'Dispensada',
+            ]);
+        });
+
+        $prescription->refresh();
+        $prescription->load([
+            'patient.user',
+            'doctor',
+            'items.medicine',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Receta dispensada correctamente. El inventario fue actualizado.',
+            'data' => $this->formatPrescription($prescription),
+        ]);
+    }
 }

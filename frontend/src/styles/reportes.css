@@ -330,3 +330,204 @@ tbody tr:hover {
   font-weight: 800;
   font-family: monospace;
 }
+
+.clinical-layout {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.clinical-patient-list table tbody tr {
+  cursor: pointer;
+}
+
+.selected-row {
+  background: #eff6ff !important;
+}
+
+.clinical-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.clinical-header-card {
+  background: linear-gradient(135deg, #1e40af, #16a34a);
+  color: white;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.clinical-header-card h2 {
+  margin: 6px 0;
+  font-size: 30px;
+}
+
+.clinical-header-card p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.clinical-label {
+  font-size: 13px;
+  font-weight: 800;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.clinical-email {
+  display: inline-block;
+  margin-top: 8px;
+  color: #dbeafe;
+  font-weight: 700;
+}
+
+.clinical-avatar {
+  width: 78px;
+  height: 78px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clinical-summary-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.clinical-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.clinical-info-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.clinical-info-card span {
+  display: block;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.clinical-info-card strong {
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.clinical-history-card {
+  padding: 24px;
+}
+
+.clinical-prescription-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 18px;
+  background: #f8fafc;
+}
+
+.clinical-prescription-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.clinical-prescription-header h4 {
+  margin: 0 0 6px 0;
+  color: var(--primary-dark);
+  font-size: 18px;
+}
+
+.clinical-prescription-header p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.clinical-prescription-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.clinical-prescription-meta div {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.clinical-prescription-meta span {
+  display: block;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.clinical-prescription-meta strong {
+  color: var(--text);
+  word-break: break-word;
+}
+
+.section-heading.compact {
+  margin-bottom: 10px;
+}
+
+.section-heading.compact h4 {
+  margin: 0;
+  color: var(--primary-dark);
+}
+
+.clinical-medicines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.clinical-medicine-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.clinical-medicine-item strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.clinical-medicine-item span {
+  display: block;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.clinical-medicine-item p {
+  margin: 8px 0 0 0;
+  color: #334155;
+}

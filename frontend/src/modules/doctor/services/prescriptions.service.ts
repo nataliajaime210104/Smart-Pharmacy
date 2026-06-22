@@ -49,3 +49,12 @@ export async function signPrescription(
 export function getPrescriptionPdfUrl(id: number) {
   return `${API_URL}/prescriptions/${id}/pdf`;
 }
+
+export async function dispensePrescription(id: number) {
+  const response = await apiPost<ApiResponse<Prescription>>(
+    `/prescriptions/${id}/dispense`,
+    {}
+  );
+
+  return response.data;
+}

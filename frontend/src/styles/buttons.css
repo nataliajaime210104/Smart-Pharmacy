@@ -97,3 +97,130 @@ button:disabled {
   transform: none;
   color: var(--primary);
 }
+
+/* =========================
+   Botones por funcionalidad
+   ========================= */
+
+.button-blue,
+.small-button.button-blue,
+.secondary-button.button-blue {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.button-blue:hover,
+.small-button.button-blue:hover,
+.secondary-button.button-blue:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.button-green,
+.small-button.button-green,
+.secondary-button.button-green {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border: 1px solid #16a34a !important;
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+}
+
+.button-green:hover,
+.small-button.button-green:hover,
+.secondary-button.button-green:hover {
+  background: #15803d !important;
+  border-color: #15803d !important;
+}
+
+.button-emerald,
+.small-button.button-emerald,
+.secondary-button.button-emerald {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border: 1px solid #059669 !important;
+  box-shadow: 0 8px 18px rgba(5, 150, 105, 0.25);
+}
+
+.button-emerald:hover,
+.small-button.button-emerald:hover,
+.secondary-button.button-emerald:hover {
+  background: #047857 !important;
+  border-color: #047857 !important;
+}
+
+.button-yellow,
+.small-button.button-yellow,
+.secondary-button.button-yellow {
+  background: #f59e0b !important;
+  color: #111827 !important;
+  border: 1px solid #f59e0b !important;
+  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25);
+}
+
+.button-yellow:hover,
+.small-button.button-yellow:hover,
+.secondary-button.button-yellow:hover {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+}
+
+.button-purple,
+.small-button.button-purple,
+.secondary-button.button-purple {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  border: 1px solid #7c3aed !important;
+  box-shadow: 0 8px 18px rgba(124, 58, 237, 0.25);
+}
+
+.button-purple:hover,
+.small-button.button-purple:hover,
+.secondary-button.button-purple:hover {
+  background: #6d28d9 !important;
+  border-color: #6d28d9 !important;
+}
+
+.button-gray,
+.small-button.button-gray,
+.secondary-button.button-gray {
+  background: #64748b !important;
+  color: #ffffff !important;
+  border: 1px solid #64748b !important;
+  box-shadow: 0 8px 18px rgba(100, 116, 139, 0.22);
+}
+
+.button-gray:hover,
+.small-button.button-gray:hover,
+.secondary-button.button-gray:hover {
+  background: #475569 !important;
+  border-color: #475569 !important;
+}
+
+.button-red,
+.small-button.button-red,
+.secondary-button.button-red,
+.small-button.danger {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border: 1px solid #dc2626 !important;
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.25);
+}
+
+.button-red:hover,
+.small-button.button-red:hover,
+.secondary-button.button-red:hover,
+.small-button.danger:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+button:disabled,
+.small-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}

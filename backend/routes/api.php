@@ -19,6 +19,7 @@ Route::get('/health', function () {
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/patients', [PatientController::class, 'index']);
+Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'updateClinicalData']);
 
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
@@ -40,4 +41,5 @@ Route::get('/prescriptions', [PrescriptionController::class, 'index']);
 Route::post('/prescriptions/check-stock', [PrescriptionController::class, 'checkStock']);
 Route::post('/prescriptions', [PrescriptionController::class, 'store']);
 Route::post('/prescriptions/{prescription}/sign', [PrescriptionController::class, 'sign']);
+Route::post('/prescriptions/{prescription}/dispense', [PrescriptionController::class, 'dispense']);
 Route::get('/prescriptions/{prescription}/pdf', [PrescriptionController::class, 'pdf']);

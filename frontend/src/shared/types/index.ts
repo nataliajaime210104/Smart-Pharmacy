@@ -31,9 +31,50 @@ export interface Patient {
   name: string;
   email?: string | null;
   age: number | null;
-  diagnosis: string;
+
+  clinicalDiagnosis: string;
+  latestConsultationDiagnosis: string;
   allergies: string;
+  medicalConditions?: string | null;
+  clinicalNotes?: string | null;
   lastTreatment: string;
+
+  prescriptions?: PatientPrescription[];
+}
+
+export interface PatientClinicalFormData {
+  age: number | '';
+  clinicalDiagnosis: string;
+  allergies: string;
+  medicalConditions: string;
+  clinicalNotes: string;
+}
+
+export interface PatientPrescriptionItem {
+  id: number;
+  medicineId: number;
+  medicineCode: string | null;
+  medicineName: string | null;
+  quantity: number;
+  dosage: string | null;
+  frequency: string | null;
+  duration: string | null;
+  instructions: string | null;
+}
+
+export interface PatientPrescription {
+  id: number;
+  folio: string;
+  doctorName: string | null;
+  diagnosis: string | null;
+  notes: string | null;
+  status: PrescriptionStatus;
+  signedAt: string | null;
+  signatureHash: string | null;
+  verificationCode: string | null;
+  createdAt: string | null;
+  pdfUrl: string | null;
+  items: PatientPrescriptionItem[];
 }
 
 export interface AiQuestion {

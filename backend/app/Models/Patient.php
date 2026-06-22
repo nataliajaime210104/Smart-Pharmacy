@@ -14,11 +14,18 @@ class Patient extends Model
         'age',
         'diagnosis',
         'allergies',
+        'medical_conditions',
+        'clinical_notes',
         'last_treatment',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(Prescription::class);
     }
 }
