@@ -23,9 +23,69 @@ const initialMessages: AiAssistantMessage[] = [
     id: 1,
     role: 'assistant',
     content:
-      'Hola, soy el asistente IA de SmartPharmacy. Puedo ayudarte a entender información general de recetas, medicamentos indicados, horarios y dudas frecuentes. No puedo diagnosticar, recetar ni cambiar tratamientos.',
+      'Hola, soy el asistente IA de SmartPharmacy.\n\nPuedo ayudarte a entender información general de recetas, medicamentos indicados, horarios y dudas frecuentes.\n\nNo puedo diagnosticar, recetar ni cambiar tratamientos.',
   },
 ];
+
+function renderMessageContent(content: string) {
+  const normalizedContent = content
+    .replace(/\*\*/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\s+\*\s+/g, '\n- ')
+    .replace(/^\*\s+/gm, '- ')
+    .replace(/•/g, '-')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  const lines = normalizedContent
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="ai-formatted-message">
+      {lines.map((line, index) => {
+        const isListItem = line.startsWith('- ');
+        const isTitle =
+          !isListItem &&
+          line.endsWith(':') &&
+          line.length <= 90;
+
+        const isImportantWarning =
+          line.toLowerCase().includes('no sustituye') ||
+          line.toLowerCase().includes('profesional de la salud') ||
+          line.toLowerCase().includes('urgencias') ||
+          line.toLowerCase().includes('emergencia');
+
+        if (isTitle) {
+          return (
+            <h4 key={`line-${index}`}>
+              {line}
+            </h4>
+          );
+        }
+
+        if (isListItem) {
+          return (
+            <div className="ai-list-line" key={`line-${index}`}>
+              <span>•</span>
+              <p>{line.replace('- ', '')}</p>
+            </div>
+          );
+        }
+
+        return (
+          <p
+            key={`line-${index}`}
+            className={isImportantWarning ? 'ai-warning-line' : undefined}
+          >
+            {line}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 function AiAssistantPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -233,7 +293,7 @@ function AiAssistantPage() {
                 </div>
 
                 <div className="ai-message-content">
-                  {message.content}
+                  {renderMessageContent(message.content)}
                 </div>
               </div>
             ))}
@@ -245,7 +305,9 @@ function AiAssistantPage() {
                 </div>
 
                 <div className="ai-message-content">
-                  Consultando Gemini...
+                  <div className="ai-formatted-message">
+                    <p>Consultando Gemini...</p>
+                  </div>
                 </div>
               </div>
             )}

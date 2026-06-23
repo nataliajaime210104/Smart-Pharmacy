@@ -659,3 +659,43 @@ tbody tr:hover {
   min-height: 76px;
   resize: vertical;
 }
+
+.ai-formatted-message {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-formatted-message h4 {
+  margin: 10px 0 2px 0;
+  color: var(--primary-dark);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.ai-formatted-message h4:first-child {
+  margin-top: 0;
+}
+
+.ai-formatted-message p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.ai-list-line {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 6px;
+  align-items: start;
+}
+
+.ai-list-line span {
+  color: var(--primary);
+  font-weight: 900;
+  line-height: 1.55;
+}
+
+.ai-list-line p {
+  margin: 0;
+  line-height: 1.55;
+}
