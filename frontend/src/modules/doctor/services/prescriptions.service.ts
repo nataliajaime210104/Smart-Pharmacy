@@ -10,8 +10,6 @@ import {
   apiPost,
 } from '../../../shared/services/api';
 
-const API_URL = import.meta.env.VITE_API_URL ?? '/api';
-
 export async function getPrescriptions() {
   const response = await apiGet<ApiResponse<Prescription[]>>('/prescriptions');
 
@@ -47,7 +45,7 @@ export async function signPrescription(
 }
 
 export function getPrescriptionPdfUrl(id: number) {
-  return `${API_URL}/prescriptions/${id}/pdf`;
+  return `/api/prescriptions/${id}/pdf`;
 }
 
 export async function dispensePrescription(id: number) {
