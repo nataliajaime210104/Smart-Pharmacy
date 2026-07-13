@@ -224,9 +224,3 @@ export interface StockCheckResponse {
   message?: string;
   data: StockCheckItem[];
 }
-
-export interface AiQuestion {
-  id: number;
-  question: string;
-  answer: string;
-}
