@@ -218,29 +218,47 @@ class PrescriptionController extends Controller
 
     public function pdf(Prescription $prescription)
     {
-        $prescription->load([
-            'patient',
-            'doctor',
-            'items.medicine',
-        ]);
+        try {
+            $prescription->load([
+                'patient',
+                'doctor',
+                'items.medicine',
+            ]);
 
-        $signatureImage = null;
+            $signatureImage = null;
 
-        if (
-            $prescription->signature_image_path &&
-            Storage::disk('public')->exists($prescription->signature_image_path)
-        ) {
-            $signatureImage = 'data:image/png;base64,' . base64_encode(
-                Storage::disk('public')->get($prescription->signature_image_path)
-            );
+            if (!empty($prescription->signature_image_path)) {
+                $signaturePath = ltrim($prescription->signature_image_path, '/');
+
+                $fullSignaturePath = storage_path('app/public/' . $signaturePath);
+
+                if (file_exists($fullSignaturePath)) {
+                    $signatureImage = 'data:image/png;base64,' . base64_encode(
+                        file_get_contents($fullSignaturePath)
+                    );
+                }
+            }
+
+            $pdf = Pdf::loadView('pdf.prescription', [
+                'prescription' => $prescription,
+                'signatureImage' => $signatureImage,
+            ])->setPaper('letter');
+
+            return $pdf->stream($prescription->folio . '.pdf');
+        } catch (\Throwable $e) {
+            \Log::error('Error al generar PDF de receta', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'mensaje' => 'Error del servidor',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
         }
-
-        $pdf = Pdf::loadView('pdf.prescription', [
-            'prescription' => $prescription,
-            'signatureImage' => $signatureImage,
-        ])->setPaper('letter');
-
-        return $pdf->stream($prescription->folio . '.pdf');
     }
 
     private function validatePrescriptionStock(array $items)

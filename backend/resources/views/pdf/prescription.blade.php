@@ -208,8 +208,8 @@
     <div class="signature-box">
         <div class="section-title">Firma digital de la receta</div>
 
-        @if ($signatureImage)
-            <img class="signature-image" src="{{ $signatureImage }}" alt="Firma digital">
+       @if (!empty($signatureImage))
+            <img src="{{ $signatureImage }}" alt="Firma digital" style="width: 280px; height: auto; margin-top: 10px; border: 1px solid #e5e7eb;">
         @else
             <p>Sin imagen de firma registrada.</p>
         @endif
