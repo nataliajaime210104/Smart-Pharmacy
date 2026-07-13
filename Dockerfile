@@ -28,6 +28,12 @@ RUN composer install --no-dev --optimize-autoloader
 
 COPY --from=frontend-build /app/frontend/dist ./public
 
-RUN chmod -R 775 storage bootstrap/cache
+RUN mkdir -p storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    storage/app/public/signatures \
+    bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 CMD php artisan config:clear && php artisan route:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
