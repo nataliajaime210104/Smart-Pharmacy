@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Prescription;
 
 class PatientController extends Controller
 {
+    
     public function index()
     {
         $patients = Patient::with([
@@ -33,8 +35,70 @@ class PatientController extends Controller
             'success' => true,
             'data' => $patients,
         ]);
+    }      
+    
+
+
+
+public function myPrescriptions($userId)
+{
+    $patient = Patient::where('user_id', $userId)
+        ->first();
+
+    if (!$patient) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Paciente no encontrado',
+            'data' => []
+        ]);
     }
 
+
+    $prescriptions = Prescription::where(
+        'patient_id',
+        $patient->id
+    )
+    ->with([
+        'doctor',
+        'items.medicine'
+    ])
+    ->orderBy('id', 'desc')
+    ->get()
+    ->map(function ($prescription) {
+
+        return [
+            'id' => $prescription->id,
+            'folio' => $prescription->folio,
+            'doctorName' => $prescription->doctor?->name,
+            'diagnosis' => $prescription->diagnosis,
+            'notes' => $prescription->notes,
+            'status' => $prescription->status,
+
+            'items' => $prescription->items->map(function($item){
+
+                return [
+                    'medicineName' => $item->medicine?->name,
+                    'quantity' => $item->quantity,
+                    'dosage' => $item->dosage,
+                    'frequency' => $item->frequency,
+                    'duration' => $item->duration,
+                    'instructions' => $item->instructions,
+                ];
+
+            }),
+
+        ];
+
+    });
+
+
+    return response()->json([
+        'success' => true,
+        'data' => $prescriptions
+    ]);
+}
+
+    
     public function updateClinicalData(Request $request, Patient $patient)
     {
         $validated = $request->validate([
@@ -145,4 +209,6 @@ class PatientController extends Controller
             })
             ->implode(' | ');
     }
+
+    
 }

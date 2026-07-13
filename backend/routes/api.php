@@ -9,6 +9,13 @@ use App\Http\Controllers\Api\PrescriptionController;
 use App\Http\Controllers\Api\AiAssistantController;
 use Illuminate\Support\Facades\Route;
 
+
+
+Route::get(
+    '/patient/prescriptions/{userId}',
+    [PatientController::class, 'myPrescriptions']
+);
+
 Route::get('/health', function () {
     return response()->json([
         'success' => true,
@@ -18,6 +25,7 @@ Route::get('/health', function () {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/patients', [PatientController::class, 'index']);
 Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'updateClinicalData']);
