@@ -73,3 +73,15 @@ export async function apiPatch<T>(endpoint: string, data?: unknown): Promise<T> 
 
   return handleResponse<T>(response);
 }
+
+export async function apiPostFormData<T>( endpoint: string, data: FormData): Promise<T> {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+    },
+    body: data,
+  });
+
+  return handleResponse<T>(response);
+}

@@ -237,6 +237,8 @@ export interface PatientRegistrationFormData {
   email: string;
   password: string;
   password_confirmation: string;
+  profilePhoto?: File | null;
+  birthDate?: string;
   age?: number | '';
   diagnosis?: string;
   allergies?: string;

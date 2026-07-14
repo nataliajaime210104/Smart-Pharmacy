@@ -262,3 +262,10 @@
   font-weight: 700;
   margin: 14px 0 20px 0;
 }
+
+.form-helper-text {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+  }

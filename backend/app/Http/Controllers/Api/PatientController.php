@@ -45,6 +45,8 @@ class PatientController extends Controller
             'fullName' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'profilePhoto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+
             'birthDate' => ['nullable', 'date'],
             'age' => ['nullable', 'integer', 'min:0', 'max:120'],
             'diagnosis' => ['nullable', 'string', 'max:255'],
@@ -55,7 +57,7 @@ class PatientController extends Controller
         ]);
 
         try {
-            $result = DB::transaction(function () use ($validated) {
+            $result = DB::transaction(function () use ($validated, $request) {
                 $user = User::create([
                     'name' => $validated['fullName'],
                     'email' => $validated['email'],
@@ -63,6 +65,24 @@ class PatientController extends Controller
                     'role' => 'Paciente',
                     'status' => 'Activo',
                 ]);
+
+                if ($request->hasFile('profilePhoto')) {
+                    $file = $request->file('profilePhoto');
+
+                    $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+
+                    $photoPath = $file->storeAs(
+                        'profile-photos',
+                        $fileName,
+                        'public'
+                    );
+
+                    $user->update([
+                        'profile_photo_path' => $photoPath,
+                    ]);
+
+                    $user->refresh();
+                }
 
                 $patient = Patient::create([
                     'user_id' => $user->id,

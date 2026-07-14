@@ -15,6 +15,7 @@ const initialForm: PatientRegistrationFormData = {
   medicalConditions: '',
   clinicalNotes: '',
   lastTreatment: '',
+  profilePhoto: null,
 };
 
 function RegisterPatientPage() {
