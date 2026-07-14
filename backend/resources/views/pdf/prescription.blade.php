@@ -3,174 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <title>Receta {{ $prescription->folio }}</title>
-
     <style>
-        body {
-            font-family: DejaVu Sans, sans-serif;
-            color: #0f172a;
-            font-size: 12px;
-            line-height: 1.5;
-        }
 
-        .header {
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 14px;
-            margin-bottom: 22px;
-        }
+    body{
+        font-family: DejaVu Sans, sans-serif;
+        color:#243447;
+        font-size:11px;
+    }
+    
+    .container{
+        width:100%;
+    }
 
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1e40af;
-            margin: 0;
-        }
+    /* HEADER */
 
-        .subtitle {
-            color: #64748b;
-            margin: 4px 0 0 0;
-        }
+    .header{
+        width:100%;
+        border-bottom:3px solid #1e63d6;
+        padding-bottom:12px;
+    }
 
-        .folio-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 12px;
-        }
+    .logo{
+        width:60%;
+        float:left;
+    }
 
-        .section {
-            margin-bottom: 18px;
-        }
+    .logo h1{
+        margin:0;
+        font-size:28px;
+        color:#1e63d6;
+    }
 
-        .section-title {
-            font-size: 15px;
-            color: #1e40af;
-            font-weight: bold;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
-        }
+    .logo span{
+        color:#1f2937;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
+    .logo small{
+        color:#6b7280;
+    }
 
-        th {
-            background: #f1f5f9;
-            color: #334155;
-            font-weight: bold;
-            text-align: left;
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-        }
+    .section{
+        margin-top:20px;
+    }
 
-        td {
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            vertical-align: top;
-        }
+    .section-title{
+        color:#0b4fb5;
+        font-size:18px;
+        font-weight:bold;
+        border-bottom:2px solid #0b4fb5;
+        padding-bottom:6px;
+        margin-top:18px;
+        margin-bottom:12px;
+        text-transform:uppercase;
+    }
 
-        .grid {
-            width: 100%;
-        }
+    .info td{
+        padding:8px 4px;
+    }
+    
+    .label{
+        width:170px;
+        font-weight:bold;
+        color:#111827;
+    }
+    
+    .recipe-box{
+        background:#0b4fb5;
+        color:white;
+        width:180px;
+        padding:12px 0;
+        border-radius:8px;
+        text-align:center;
+        font-size:18px;
+        font-weight:bold;
+    }
+    
+    .recipe-box strong{
+        font-size:15px;
+    }
+    
+    .clear{
+        clear:both;
+    }
 
-        .grid td {
-            border: none;
-            padding: 4px 0;
-        }
+     /* TARJETAS */
+     
+    .card{
+        margin-top:20px;
+        background:white;
+        border:1px solid #d9e5f2;
+        border-radius:12px;
+        padding:18px;
+    }
+    
+    .card-title{
+        color:#1e63d6;
+        font-weight:bold;
+        font-size:13px;
+        border-bottom:2px solid #1e63d6;
+        padding-bottom:5px;
+        margin-bottom:10px;
+    }
 
-        .label {
-            font-weight: bold;
-            color: #334155;
-        }
+    /* TABLAS */
+    
+    table{
+        border-spacing:0;
+    }
 
-        .signature-box {
-            margin-top: 30px;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 18px;
-        }
+    .info{
+        width:100%;
+        border-collapse:collapse;
+    }
+    
+    .info td{
+        padding:6px;
+    }
+    
+    .label{
+        font-weight:bold;
+        color:#374151;
+    }
+    
+    /* MEDICAMENTOS */
+    
+    .medicamentos{
+        width:100%;
+        border-collapse:collapse;
+        margin-top:10px;
+        border-radius:8px;
+        overflow:hidden;
 
-        .signature-image {
-            width: 220px;
-            height: auto;
-            margin-bottom: 8px;
-        }
+}
 
-        .hash-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 10px;
-            font-size: 10px;
-            word-break: break-all;
-            margin-top: 8px;
-        }
+    .medicamentos th{
+        background:#0b4fb5;
+        color:white;
+        padding:11px;
+        text-align:center;
+        font-size:12px;
+    }
 
-        .verification {
-            background: #ecfdf5;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-            padding: 10px;
-            font-weight: bold;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
+    .medicamentos td{
+        border:1px solid #d5d5d5;
+        padding:10px;
+        text-align:center;
+    }
+    
+    /* DOS COLUMNAS */
+    
+    .columns{
+        width:100%;
+        margin-top:15px;
+    }
+    
+    .columns td{
+        padding-right:20px;
+        vertical-align:top;
+    }
 
-        .footer {
-            margin-top: 30px;
-            font-size: 10px;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 10px;
-        }
+    /* FIRMA */
+
+    .signature{
+        margin-top:20px;
+        border:1px solid #d9e4f5;
+        border-radius:12px;
+        background:white;
+        text-align:center;
+        padding:18px;
+    }
+    
+    .line{
+        width:270px;
+        margin:8px auto;
+        border-top:2px solid #1e63d6;
+    }
+
+    .signature img{
+        height:90px;
+    }
+
+    /* FOOTER */
+    
+    .footer{
+        margin-top:25px;
+        padding:15px;
+        background:white;
+        border:1px solid #d9e5f2;
+        border-radius:12px;
+    }
+    
+    .footer td{
+        padding:5px;
+    }
     </style>
-</head>
+    </head>
 <body>
+
+<div class="container">
+
+    <!-- ENCABEZADO -->
     <div class="header">
-        <h1 class="title">SmartPharmacy - Receta Electrónica</h1>
-        <p class="subtitle">Documento generado desde el sistema SmartPharmacy</p>
+        <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="75%">
+                    <table cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td width="70">
+                                <img src="{{ asset('public/assets/logo/smartpharmacy-logo.png') }}" style="height:60px;">
+                            </td>
+                            
+                            <td>
+                                <div style="font-size:30px;font-weight:bold;color:#0d4cb5;">
+                                    Smart<span style="color:#222;">Pharmacy</span>
+                                </div>
+                                
+                                <div style="font-size:12px;color:#777;">
+                                    TU SALUD, NUESTRA PRIORIDAD
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                
+                <td width="25%" align="right">
+                    <div class="recipe-box">
+                        RECETA MÉDICA
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</td>
+</tr>
+</table>
 
-        <div class="folio-box">
-            <strong>Folio:</strong> {{ $prescription->folio }}<br>
-            <strong>Estado:</strong> {{ $prescription->status }}<br>
-            <strong>Fecha de emisión:</strong> {{ $prescription->created_at?->format('Y-m-d H:i:s') }}
+</div>
+    
+    <!-- FOLIO -->
+    <div class="card">
+        <table width="100%">
+            <tr>
+                <td width="70%">
+                    <p><b>Folio de receta:</b> {{ $prescription->folio }}</p>
+                    <p><b>Emitida por:</b> SmartPharmacy</p>
+                    <p><b>Fecha de emisión:</b>
+                    {{ $prescription->created_at?->format('Y-m-d H:i:s') }}
+                </p>
+            </td>
+        
+        <td align="center">
+            <!-- Aquí poner el QR -->
+        </td>
+        </tr>
+    </table>
+    </div>
+
+    <!-- DATOS PACIENTE -->
+    <div class="section">
+        <div class="section-title">
+            DATOS GENERALES
         </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Datos del paciente</div>
-
-        <table class="grid">
-            <tr>
-                <td><span class="label">Paciente:</span> {{ $prescription->patient?->full_name }}</td>
-            </tr>
-            <tr>
-                <td><span class="label">Expediente:</span> {{ $prescription->patient?->record_number }}</td>
-            </tr>
-            <tr>
-                <td><span class="label">Diagnóstico:</span> {{ $prescription->diagnosis ?? 'N/A' }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Datos del médico</div>
-
-        <table class="grid">
-            <tr>
-                <td><span class="label">Médico responsable:</span> {{ $prescription->doctor?->name }}</td>
-            </tr>
-            <tr>
-                <td><span class="label">Correo:</span> {{ $prescription->doctor?->email }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="section">
+        
+        <table class="info">
+            
+        <tr>
+            <td class="label">Paciente:</td>
+            <td>{{ $prescription->patient?->full_name }}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">Expediente:</td>            
+            <td>{{ $prescription->patient?->record_number }}</td>
+        </tr>
+        
+    <tr>
+        <td class="label">Diagnóstico:</td>
+        <td>
+        {{ $prescription->diagnosis }}
+    </td>
+</tr>
+    
+    <tr>
+        <td class="label">Médico:</td>
+        <td>{{ $prescription->doctor?->name }}</td>
+    </tr>
+    
+    <tr>
+        <td class="label">Correo:</td>
+        <td>{{ $prescription->doctor?->email }}</td>
+    </tr>
+</table>
+</div>
+    <div class="section">        
         <div class="section-title">Medicamentos recetados</div>
-
-        <table>
+        <table class="medicamentos">            
             <thead>
                 <tr>
                     <th>Medicamento</th>
@@ -197,40 +324,74 @@
             </tbody>
         </table>
     </div>
+    
+    <table class="columns">
+        <tr>
+            <td>
+                <div class="section-title">
+                    INDICACIONES CLÍNICAS
+                </div>
+                
+                {{ $prescription->notes ?? 'Sin observaciones' }}
+            </td>
+            
+            <td>
+                <div class="section-title">
+                    RECOMENDACIONES
+                </div>
+                Tomar medicamentos según prescripción médica.
+            </td>
+        </tr>
 
+    </table>
     @if ($prescription->notes)
         <div class="section">
             <div class="section-title">Notas generales</div>
             <p>{{ $prescription->notes }}</p>
         </div>
     @endif
-
-    <div class="signature-box">
-        <div class="section-title">Firma digital de la receta</div>
-
-       @if (!empty($signatureImage))
-            <img src="{{ $signatureImage }}" alt="Firma digital" style="width: 280px; height: auto; margin-top: 10px; border: 1px solid #e5e7eb;">
-        @else
-            <p>Sin imagen de firma registrada.</p>
+    
+    <div class="signature">
+        <div class="section-title">
+            FIRMA DEL MÉDICO
+        </div>
+        @if($signatureImage)
+        <img src="{{ $signatureImage }}">
         @endif
-
-        <p>
-            <strong>Firmado por:</strong> {{ $prescription->signed_by_name ?? $prescription->doctor?->name }}<br>
-            <strong>Fecha de firma:</strong> {{ $prescription->signed_at?->format('Y-m-d H:i:s') }}
-        </p>
-
-        <div class="verification">
-            Código de verificación: {{ $prescription->verification_code ?? 'N/A' }}
-        </div>
-
-        <div class="hash-box">
-            <strong>Hash SHA-256:</strong><br>
-            {{ $prescription->signature_hash ?? 'N/A' }}
+        <div class="line"></div>
+        
+        <b>{{ $prescription->signed_by_name ?? $prescription->doctor?->name }}</b>
+        <br>
+        Cédula Profesional
+        <br><br>
+        
+        <b>Fecha:</b>
+        {{ $prescription->signed_at?->format('d/m/Y H:i') }}
+        
+        <div style="margin-top:15px;font-size:10px;color:#666;">
+            Dr. ID:
+            {{ $prescription->doctor?->id }}|
+            Generado por SmartPharmacy
         </div>
     </div>
+</div>
 
-    <div class="footer">
-        Esta receta electrónica fue generada por SmartPharmacy. La firma digital implementada corresponde a una validación técnica simulada para fines académicos y de trazabilidad del sistema.
-    </div>
+<div class="footer">
+    <table width="100%">
+        <tr>
+            <td width="60%">
+                <b>Documento generado desde SmartPharmacy</b><br>
+                La validez de esta receta puede verificarse mediante el código QR o el folio.
+                </td>
+                
+                <td align="right">
+                    <b>Fecha:</b><br>
+                    {{ $prescription->created_at?->format('Y-m-d H:i:s') }}
+                </td>
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
 </body>
 </html>

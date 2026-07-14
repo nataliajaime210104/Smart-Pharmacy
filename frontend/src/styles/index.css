@@ -5,7 +5,8 @@
 @import './forms.css';
 @import './auth.css';
 @import './reportes.css';
-@import './responsive.css';
+@import './roles-permisos.css';
 @import './patient.css';
 @import './avatar.css';
 @import './dashboard.css';
+@import './responsive.css';

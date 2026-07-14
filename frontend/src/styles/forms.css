@@ -270,50 +270,12 @@
     font-weight: 700;
   }
 
-.form-helper-text {
-  margin: 6px 0 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.profile-photo-field {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 16px;
-  background: #f8fafc;
-}
-
-.profile-photo-preview {
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #2563eb, #15966f);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 12px;
-  font-weight: 900;
-}
-
 .profile-photo-input {
   flex: 1;
 }
 
 .profile-photo-input input[type='file'] {
   width: 100%;
-}
-
-.form-helper-text {
-  margin: 6px 0 0;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .profile-photo-field {
@@ -406,4 +368,24 @@
 .admin-profile-photo-input input[type='file'] {
   width: 100%;
   max-width: 100%;
+}
+
+.profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  max-width: 82px;
+  max-height: 82px;
+  object-fit: cover;
+  display: block;
+  border-radius: 999px;
+}
+
+.profile-photo-preview .user-avatar {
+  width: 82px;
+  min-width: 82px;
+  max-width: 82px;
+  height: 82px;
+  min-height: 82px;
+  max-height: 82px;
+  box-shadow: none;
 }
