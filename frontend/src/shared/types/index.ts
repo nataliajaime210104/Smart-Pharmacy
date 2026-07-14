@@ -230,3 +230,16 @@ export interface AiQuestion {
   question: string;
   answer: string;
 }
+
+export interface PatientRegistrationFormData {
+  fullName: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  age?: number | '';
+  diagnosis?: string;
+  allergies?: string;
+  medicalConditions?: string;
+  clinicalNotes?: string;
+  lastTreatment?: string;
+}

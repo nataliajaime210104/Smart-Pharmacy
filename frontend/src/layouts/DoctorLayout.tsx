@@ -8,9 +8,11 @@ import DoctorDashboardPage from '../modules/doctor/DoctorDashboardPage';
 import PatientRecordPage from '../modules/doctor/PatientRecordPage';
 import PrescriptionsPage from '../modules/doctor/PrescriptionsPage';
 import AiAssistantPage from '../modules/ai-assistant/AiAssistantPage';
+import RegisterPatientPage from '../modules/doctor/RegisterPatientPage';
 
 import {
   Home,
+  UserPlus,
   FileText,
   ClipboardList,
   Bot,
@@ -18,6 +20,7 @@ import {
 
 type DoctorPage =
   | 'dashboard'
+  | 'registerPatient'
   | 'record'
   | 'prescriptions'
   | 'assistant';
@@ -35,6 +38,9 @@ function DoctorLayout({ user, onLogout }: Props) {
     switch (currentPage) {
       case 'dashboard':
         return <DoctorDashboardPage />;
+
+      case 'registerPatient':
+        return <RegisterPatientPage />;
 
       case 'record':
         return <PatientRecordPage />;
@@ -67,7 +73,6 @@ function DoctorLayout({ user, onLogout }: Props) {
         </div>
 
         <nav>
-
           <button
             className={
               currentPage === 'dashboard'
@@ -80,6 +85,20 @@ function DoctorLayout({ user, onLogout }: Props) {
           >
             <Home className="nav-icon" />
             Inicio
+          </button>
+
+          <button
+            className={
+              currentPage === 'registerPatient'
+                ? 'active'
+                : ''
+            }
+            onClick={() =>
+              setCurrentPage('registerPatient')
+            }
+          >
+            <UserPlus className="nav-icon" />
+            Registrar paciente
           </button>
 
           <button
@@ -103,9 +122,7 @@ function DoctorLayout({ user, onLogout }: Props) {
                 : ''
             }
             onClick={() =>
-              setCurrentPage(
-                'prescriptions'
-              )
+              setCurrentPage('prescriptions')
             }
           >
             <ClipboardList className="nav-icon" />
@@ -125,7 +142,6 @@ function DoctorLayout({ user, onLogout }: Props) {
             <Bot className="nav-icon" />
             Asistente IA
           </button>
-
         </nav>
       </aside>
 

@@ -21,6 +21,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/patients', [PatientController::class, 'index']);
+Route::post('/patients', [PatientController::class, 'store']);
 Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'updateClinicalData']);
 
 Route::get('/users', [UserController::class, 'index']);

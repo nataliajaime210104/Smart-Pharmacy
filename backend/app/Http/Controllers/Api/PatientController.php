@@ -197,4 +197,68 @@ class PatientController extends Controller
             })
             ->implode(' | ');
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'fullName' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+
+            'age' => ['nullable', 'integer', 'min:0', 'max:120'],
+            'diagnosis' => ['nullable', 'string', 'max:255'],
+            'allergies' => ['nullable', 'string'],
+            'medicalConditions' => ['nullable', 'string'],
+            'clinicalNotes' => ['nullable', 'string'],
+            'lastTreatment' => ['nullable', 'string'],
+        ]);
+
+        $patient = DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'name' => $validated['fullName'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role' => 'Paciente',
+                'status' => 'Activo',
+            ]);
+
+            return Patient::create([
+                'user_id' => $user->id,
+                'record_number' => 'EXP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT),
+                'full_name' => $validated['fullName'],
+                'age' => $validated['age'] ?? null,
+                'diagnosis' => $validated['diagnosis'] ?? null,
+                'allergies' => $validated['allergies'] ?? null,
+                'medical_conditions' => $validated['medicalConditions'] ?? null,
+                'clinical_notes' => $validated['clinicalNotes'] ?? null,
+                'last_treatment' => $validated['lastTreatment'] ?? null,
+            ]);
+        });
+
+        $patient->load('user');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Paciente registrado correctamente.',
+            'data' => [
+                'id' => $patient->id,
+                'userId' => $patient->user_id,
+                'recordNumber' => $patient->record_number,
+                'fullName' => $patient->full_name,
+                'age' => $patient->age,
+                'diagnosis' => $patient->diagnosis,
+                'allergies' => $patient->allergies,
+                'medicalConditions' => $patient->medical_conditions,
+                'clinicalNotes' => $patient->clinical_notes,
+                'lastTreatment' => $patient->last_treatment,
+                'user' => [
+                    'id' => $patient->user?->id,
+                    'name' => $patient->user?->name,
+                    'email' => $patient->user?->email,
+                    'role' => $patient->user?->role,
+                    'status' => $patient->user?->status,
+                ],
+            ],
+        ], 201);
+    }
 }
