@@ -1,11 +1,21 @@
-import { useState } from "react";
-import { Send, Bot } from "lucide-react";
+import {
+ useState
+} from "react";
 
-import type { User } from "../../shared/types";
+import {
+ Bot,
+ Send,
+ UserRound
+} from "lucide-react";
+
+
+import type {User} from "../../shared/types";
+
 
 import {
  askPatientAssistant
-} from "./services/assistant.service";
+} from "./services/patient-assistant.service";
+
 
 
 interface Props{
@@ -13,121 +23,108 @@ interface Props{
 }
 
 
+
 function MedicalAssistantPage({user}:Props){
 
 
-const [message,setMessage]=useState("");
-
 const [messages,setMessages]=useState<any[]>([
+
 {
- role:"bot",
- text:
- "Hola 👋 soy tu asistente médico. Puedo ayudarte con tus recetas, medicamentos y expediente clínico."
+role:"assistant",
+content:
+"Hola 👋 soy tu asistente médico.\n\nPuedo ayudarte a consultar tus recetas, medicamentos, horarios e información de tu expediente."
 }
+
 ]);
 
+
+const [question,setQuestion]=useState("");
 
 const [loading,setLoading]=useState(false);
 
 
 
-async function sendMessage(){
+async function send(){
+
+  if(!question.trim()) return;
+
+  const cleanQuestion = question.trim();
+
+  setMessages(prev=>[
+    ...prev,
+    {
+      role:"user",
+      content:cleanQuestion
+    }
+  ]);
+
+  setQuestion("");
+
+  setLoading(true);
+
+  try{
+
+    const response = await askPatientAssistant({
+      question: cleanQuestion,
+      userId: user.id
+    });
 
 
-if(!message.trim()) return;
+    setMessages(prev=>[
+      ...prev,
+      {
+        role:"assistant",
+        content: response.answer
+      }
+    ]);
 
 
-const question=message;
+  }catch(error){
 
+    console.error(error);
 
-setMessages(prev=>[
-...prev,
-{
- role:"user",
- text:question
-}
-]);
+    setMessages(prev=>[
+      ...prev,
+      {
+        role:"assistant",
+        content:"No pude consultar tu expediente."
+      }
+    ]);
 
+  }
+  finally{
 
-setMessage("");
+    setLoading(false);
 
-setLoading(true);
-
-
-
-try{
-
-
-const response=
-await askPatientAssistant(
-question,
-user.id
-);
-
-
-
-setMessages(prev=>[
-...prev,
-{
- role:"bot",
- text:response.message
-}
-]);
-
-
-
-}catch(error){
-
-
-setMessages(prev=>[
-...prev,
-{
- role:"bot",
- text:"No pude consultar tu información médica."
-}
-]);
-
-
-}
-finally{
-
-setLoading(false);
-
-}
-
+  }
 
 }
 
 
 
 
-return(
+return (
 
-<div
-className="
-h-[600px]
+<div className="
 bg-white
 rounded-3xl
 shadow-xl
+overflow-hidden
+h-[650px]
 flex
 flex-col
-overflow-hidden
-"
->
+">
 
-
-{/* HEADER */}
 
 <div
 className="
 bg-gradient-to-r
-from-purple-600
-to-blue-600
-p-5
+from-blue-600
+to-purple-600
 text-white
+p-5
 flex
 gap-3
-items-center
 "
 >
 
@@ -135,78 +132,88 @@ items-center
 
 <div>
 
-<h1 className="font-bold text-xl">
-Asistente Médico IA
+<h1 className="text-xl font-bold">
+Mi asistente médico IA
 </h1>
 
-<p className="text-sm">
-Basado en tu expediente clínico
+
+<p>
+Consulta tus recetas y medicamentos
 </p>
 
-</div>
-
 
 </div>
 
 
+</div>
 
 
 
-{/* MENSAJES */}
 
 <div
 className="
 flex-1
-p-5
-space-y-4
 overflow-y-auto
+p-5
 bg-gray-50
+space-y-4
 "
 >
 
 
 {
-messages.map(
-(item,index)=>(
+messages.map((msg,index)=>(
 
 
 <div
 key={index}
 className={
 
-item.role==="user"
+msg.role==="user"
 
 ?
-
 "flex justify-end"
 
 :
-
 "flex justify-start"
 
 }
-
 >
 
 
 <div
 className={
 
-item.role==="user"
+msg.role==="user"
 
 ?
-
-"bg-blue-600 text-white p-3 rounded-2xl max-w-md"
+"bg-blue-600 text-white p-4 rounded-2xl max-w-lg"
 
 :
-
-"bg-white shadow p-3 rounded-2xl max-w-md"
+"bg-white shadow p-4 rounded-2xl max-w-lg"
 
 }
-
 >
 
-{item.text}
+
+<div className="flex gap-2">
+
+{
+msg.role==="user"
+?
+<UserRound size={18}/>
+:
+<Bot size={18}/>
+}
+
+
+<p>
+{msg.content}
+</p>
+
+
+</div>
+
 
 </div>
 
@@ -222,10 +229,9 @@ item.role==="user"
 {
 loading &&
 <p>
-🤖 Analizando expediente...
+🤖 Consultando expediente...
 </p>
 }
-
 
 
 </div>
@@ -234,16 +240,22 @@ loading &&
 
 
 
+<form
+onSubmit={(e)=>{
 
-{/* INPUT */}
+e.preventDefault();
 
-<div
+send();
+
+}}
+
 className="
-p-4
 border-t
+p-4
 flex
 gap-3
 "
+
 >
 
 
@@ -260,10 +272,10 @@ placeholder="
 Pregunta sobre tus medicamentos...
 "
 
-value={message}
+value={question}
 
 onChange={
-e=>setMessage(e.target.value)
+e=>setQuestion(e.target.value)
 }
 
 />
@@ -271,13 +283,11 @@ e=>setMessage(e.target.value)
 
 <button
 
-onClick={sendMessage}
-
 className="
 bg-purple-600
 text-white
-rounded-xl
 px-5
+rounded-xl
 "
 
 >
@@ -287,7 +297,7 @@ px-5
 </button>
 
 
-</div>
+</form>
 
 
 

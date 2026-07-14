@@ -5,6 +5,7 @@ import type { User } from '../shared/types';
 import Navbar from '../shared/components/Navbar';
 
   import MyPrescriptionsPage from '../modules/patient/MyPrescriptionsPage'; 
+  import MedicalAssistantPage from '../modules/patient/MedicalAssistantPage';
   
 import {
   Home,
@@ -13,7 +14,8 @@ import {
 
 type PatientPage =
   | 'dashboard'
-  | 'prescriptions';
+  | 'prescriptions'
+  | 'assistant';
 
 interface Props {
   user: User;
@@ -46,6 +48,12 @@ function PatientLayout({ user, onLogout }: Props) {
             case 'prescriptions':
             return (
           <MyPrescriptionsPage user={user}/>
+        );
+            case 'assistant':
+          return (
+            <MedicalAssistantPage
+              user={user}
+            />
         );
       default:
         return (
@@ -99,6 +107,19 @@ function PatientLayout({ user, onLogout }: Props) {
             <ClipboardList className="nav-icon" />
             Mis recetas
           </button>
+          <button
+  className={
+    currentPage === 'assistant'
+      ? 'active'
+      : ''
+  }
+  onClick={() =>
+    setCurrentPage('assistant')
+  }
+>
+  🤖
+  Asistente IA
+</button>
 
         </nav>
 

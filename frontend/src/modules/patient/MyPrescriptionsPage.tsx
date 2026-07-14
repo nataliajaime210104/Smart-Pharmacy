@@ -68,15 +68,14 @@ function MyPrescriptionsPage({user}: Props) {
 
   <div
     className="
-    bg-gradient-to-r 
-    from-blue-600 
-    to-cyan-500
-    rounded-3xl
-    p-8
+    bg-red-500
     text-white
-    shadow-xl
+    text-5xl
+    p-10
     "
   >
+
+  
 
     <h1 className="
       text-4xl 
@@ -184,24 +183,21 @@ No tienes recetas disponibles.
 
 filtered.map(recipe=>(
 
-
 <div
 
 key={recipe.id}
 
 className="
-bg-white
+bg-red-500
+text-white
+p-10
 rounded-3xl
-shadow-lg
-border
-overflow-hidden
-hover:shadow-2xl
-transition
+shadow-2xl
+border-4
+border-black
 "
 
 >
-
-
 
 {/* CABECERA RECETA */}
 
