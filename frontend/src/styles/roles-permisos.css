@@ -420,18 +420,32 @@
 .user-table-profile {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.user-table-profile .user-avatar {
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  box-shadow: none;
 }
 
 .user-table-profile strong {
   display: block;
   color: #0f172a;
   font-size: 14px;
+  line-height: 1.2;
 }
 
 .user-table-profile span {
   display: block;
   color: #64748b;
   font-size: 12px;
-  margin-top: 2px;
+  line-height: 1.2;
+  margin-top: 3px;
+  word-break: break-word;
 }

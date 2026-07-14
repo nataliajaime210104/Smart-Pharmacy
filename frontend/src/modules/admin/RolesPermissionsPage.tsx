@@ -358,52 +358,51 @@ function RolesPermissionsPage() {
               </div>
 
               <div className="form-group form-full">
-                <label>Foto de perfil</label>
+              <label>Foto de perfil</label>
 
-                <div className="profile-photo-field">
-                  <div className="profile-photo-preview">
-                    {photoPreviewUrl ? (
-                      <img
-                        src={photoPreviewUrl}
-                        alt="Vista previa"
-                      />
-                    ) : editingUser ? (
-                      <UserAvatar
-                        user={editingUser}
-                        size="lg"
-                      />
-                    ) : (
-                      <ImagePlus size={28} />
-                    )}
-                  </div>
-
-                  <div className="profile-photo-input">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/jpg,image/webp"
-                      onChange={handleProfilePhotoChange}
+              <div className="admin-profile-photo-field">
+                <div className="admin-profile-photo-preview">
+                  {photoPreviewUrl ? (
+                    <img
+                      src={photoPreviewUrl}
+                      alt="Vista previa"
                     />
+                  ) : editingUser ? (
+                    <UserAvatar
+                      user={editingUser}
+                      size="lg"
+                    />
+                  ) : (
+                    <ImagePlus size={28} />
+                  )}
+                </div>
 
+                <div className="admin-profile-photo-input">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    onChange={handleProfilePhotoChange}
+                  />
+
+                  <p className="form-helper-text">
+                    Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 2 MB.
+                  </p>
+
+                  {formData.profilePhoto && (
                     <p className="form-helper-text">
-                      Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 2 MB.
+                      Imagen seleccionada: {formData.profilePhoto.name}
                     </p>
+                  )}
 
-                    {formData.profilePhoto && (
-                      <p className="form-helper-text">
-                        Imagen seleccionada: {formData.profilePhoto.name}
-                      </p>
-                    )}
-
-                    {editingUser?.profilePhotoUrl && !formData.profilePhoto && (
-                      <p className="form-helper-text">
-                        Si no seleccionas una nueva imagen, se conservará la foto actual.
-                      </p>
-                    )}
-                  </div>
+                  {editingUser?.profilePhotoUrl && !formData.profilePhoto && (
+                    <p className="form-helper-text">
+                      Si no seleccionas una nueva imagen, se conservará la foto actual.
+                    </p>
+                  )}
                 </div>
               </div>
-
+            </div>
               <div className="form-group">
                 <label>
                   Contraseña {editingUser && <span className="label-hint">(opcional)</span>}
