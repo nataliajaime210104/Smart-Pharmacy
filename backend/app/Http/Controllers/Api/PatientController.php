@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
+use App\Models\Prescription;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\Prescription;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PatientController extends Controller
 {
@@ -34,6 +37,98 @@ class PatientController extends Controller
             'success' => true,
             'data' => $patients,
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'fullName' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+
+            'birthDate' => ['nullable', 'date'],
+            'age' => ['nullable', 'integer', 'min:0', 'max:120'],
+            'diagnosis' => ['nullable', 'string', 'max:255'],
+            'allergies' => ['nullable', 'string'],
+            'medicalConditions' => ['nullable', 'string'],
+            'clinicalNotes' => ['nullable', 'string'],
+            'lastTreatment' => ['nullable', 'string'],
+        ]);
+
+        try {
+            $result = DB::transaction(function () use ($validated) {
+                $user = User::create([
+                    'name' => $validated['fullName'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                    'role' => 'Paciente',
+                    'status' => 'Activo',
+                ]);
+
+                $patient = Patient::create([
+                    'user_id' => $user->id,
+                    'record_number' => 'EXP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT),
+                    'full_name' => $validated['fullName'],
+                    'birth_date' => $validated['birthDate'] ?? null,
+                    'age' => $validated['age'] ?? null,
+                    'diagnosis' => $validated['diagnosis'] ?? null,
+                    'allergies' => $validated['allergies'] ?? null,
+                    'medical_conditions' => $validated['medicalConditions'] ?? null,
+                    'clinical_notes' => $validated['clinicalNotes'] ?? null,
+                    'last_treatment' => $validated['lastTreatment'] ?? null,
+                ]);
+
+                return [
+                    'user' => $user,
+                    'patient' => $patient,
+                ];
+            });
+
+            $user = $result['user'];
+            $patient = $result['patient'];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Paciente registrado correctamente.',
+                'data' => [
+                    'id' => $patient->id,
+                    'userId' => $patient->user_id,
+                    'recordNumber' => $patient->record_number,
+                    'fullName' => $patient->full_name,
+                    'name' => $patient->full_name,
+                    'email' => $user->email,
+                    'birthDate' => $patient->birth_date,
+                    'age' => $patient->age,
+                    'diagnosis' => $patient->diagnosis,
+                    'clinicalDiagnosis' => $patient->diagnosis,
+                    'allergies' => $patient->allergies,
+                    'medicalConditions' => $patient->medical_conditions,
+                    'clinicalNotes' => $patient->clinical_notes,
+                    'lastTreatment' => $patient->last_treatment,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role,
+                        'status' => $user->status,
+                    ],
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            \Log::error('Error al registrar paciente desde médico', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al registrar paciente.',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
     }
 
     public function myPrescriptions($userId)
@@ -131,7 +226,9 @@ class PatientController extends Controller
             'userId' => $patient->user_id,
             'recordNumber' => $patient->record_number,
             'name' => $patient->user?->name ?? $patient->full_name,
+            'fullName' => $patient->full_name,
             'email' => $patient->user?->email,
+            'birthDate' => $patient->birth_date,
             'age' => $patient->age ?? ($patient->birth_date ? Carbon::parse($patient->birth_date)->age : null),
 
             'clinicalDiagnosis' => $patient->diagnosis ?? 'Pendiente por registrarse',
@@ -196,69 +293,5 @@ class PatientController extends Controller
                 return "{$medicine} x {$quantity} / {$dosage} / {$frequency} / {$duration}";
             })
             ->implode(' | ');
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'fullName' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-
-            'age' => ['nullable', 'integer', 'min:0', 'max:120'],
-            'diagnosis' => ['nullable', 'string', 'max:255'],
-            'allergies' => ['nullable', 'string'],
-            'medicalConditions' => ['nullable', 'string'],
-            'clinicalNotes' => ['nullable', 'string'],
-            'lastTreatment' => ['nullable', 'string'],
-        ]);
-
-        $patient = DB::transaction(function () use ($validated) {
-            $user = User::create([
-                'name' => $validated['fullName'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'role' => 'Paciente',
-                'status' => 'Activo',
-            ]);
-
-            return Patient::create([
-                'user_id' => $user->id,
-                'record_number' => 'EXP-' . str_pad($user->id, 6, '0', STR_PAD_LEFT),
-                'full_name' => $validated['fullName'],
-                'age' => $validated['age'] ?? null,
-                'diagnosis' => $validated['diagnosis'] ?? null,
-                'allergies' => $validated['allergies'] ?? null,
-                'medical_conditions' => $validated['medicalConditions'] ?? null,
-                'clinical_notes' => $validated['clinicalNotes'] ?? null,
-                'last_treatment' => $validated['lastTreatment'] ?? null,
-            ]);
-        });
-
-        $patient->load('user');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Paciente registrado correctamente.',
-            'data' => [
-                'id' => $patient->id,
-                'userId' => $patient->user_id,
-                'recordNumber' => $patient->record_number,
-                'fullName' => $patient->full_name,
-                'age' => $patient->age,
-                'diagnosis' => $patient->diagnosis,
-                'allergies' => $patient->allergies,
-                'medicalConditions' => $patient->medical_conditions,
-                'clinicalNotes' => $patient->clinical_notes,
-                'lastTreatment' => $patient->last_treatment,
-                'user' => [
-                    'id' => $patient->user?->id,
-                    'name' => $patient->user?->name,
-                    'email' => $patient->user?->email,
-                    'role' => $patient->user?->role,
-                    'status' => $patient->user?->status,
-                ],
-            ],
-        ], 201);
     }
 }

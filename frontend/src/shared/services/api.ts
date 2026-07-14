@@ -1,14 +1,28 @@
 const API_URL = import.meta.env.VITE_API_URL ?? '/api';
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
 
-    throw new Error(
-      errorData?.message ?? 'Ocurrió un error al comunicarse con la API.'
-    );
+async function handleResponse<T>(response: Response): Promise<T> {
+  const responseData = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    let message =
+      responseData?.message ??
+      'Ocurrió un error al comunicarse con la API.';
+
+    if (responseData?.errors) {
+      const validationMessages = Object.values(responseData.errors)
+        .flat()
+        .filter(Boolean)
+        .join(' ');
+
+      if (validationMessages) {
+        message = validationMessages;
+      }
+    }
+
+    throw new Error(message);
   }
 
-  return response.json();
+  return responseData;
 }
 
 export async function apiGet<T>(endpoint: string): Promise<T> {
