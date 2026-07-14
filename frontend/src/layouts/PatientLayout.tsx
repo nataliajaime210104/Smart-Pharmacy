@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { User } from '../shared/types';
 
 import Navbar from '../shared/components/Navbar';
+import UserAvatar from '../shared/components/UserAvatar';
 
 import MyPrescriptionsPage from '../modules/patient/MyPrescriptionsPage';
 
@@ -28,17 +29,33 @@ function PatientLayout({ user, onLogout }: Props) {
     switch (currentPage) {
       case 'dashboard':
         return (
-          <div className="page-card">
-            <h1>Bienvenido</h1>
+          <div>
+            <div className="welcome-profile-card">
+              <UserAvatar
+                user={user}
+                size="xl"
+              />
 
-            <p>
-              Hola <strong>{user.name}</strong>.
-            </p>
+              <div>
+                <h1>Bienvenido, {user.name}</h1>
 
-            <p>
-              Desde este portal podrás consultar tus recetas médicas emitidas
-              por tu médico.
-            </p>
+                <p>
+                  Desde este portal podrás consultar tus recetas médicas
+                  emitidas por tu médico, revisar medicamentos indicados y
+                  abrir tu PDF cuando la receta esté firmada.
+                </p>
+
+                <div className="welcome-profile-meta">
+                  <span className="welcome-profile-badge">
+                    {user.role}
+                  </span>
+
+                  <span className="welcome-profile-badge success">
+                    {user.status}
+                  </span>
+                </div>
+              </div>
+            </div>
 
             <div className="patient-summary-grid">
               <div className="patient-summary-card">
@@ -50,8 +67,8 @@ function PatientLayout({ user, onLogout }: Props) {
 
               <div className="patient-summary-card">
                 <div>
-                  <span>Rol</span>
-                  <strong>{user.role}</strong>
+                  <span>Recetas médicas</span>
+                  <strong>Consulta</strong>
                 </div>
               </div>
             </div>

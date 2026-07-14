@@ -1,31 +1,42 @@
-import { LogOut, Stethoscope } from 'lucide-react';
-import type { User } from '../types';
+import { LogOut } from 'lucide-react';
 
-interface NavbarProps {
-  onLogout: () => void;
+import type { User } from '../types';
+import UserAvatar from './UserAvatar';
+
+interface Props {
   user: User;
+  onLogout: () => void;
 }
 
-function Navbar({ onLogout, user }: NavbarProps) {
+function Navbar({ user, onLogout }: Props) {
   return (
     <header className="navbar">
-      <div className="navbar-title">
-        <div className="navbar-icon">
-          <Stethoscope size={24} />
-        </div>
-
-        <div>
-          <h2>Panel Médico</h2>
-          <span>
-            {user.name} / {user.role}
-          </span>
-        </div>
+      <div>
+        <h3>SmartPharmacy</h3>
       </div>
 
-      <button className="logout-button" onClick={onLogout}>
-        <LogOut size={18} />
-        Cerrar sesión
-      </button>
+      <div className="navbar-actions">
+        <div className="navbar-profile">
+          <UserAvatar
+            user={user}
+            size="md"
+          />
+
+          <div className="navbar-profile-info">
+            <strong>{user.name}</strong>
+            <span>{user.role}</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="logout-button"
+          onClick={onLogout}
+        >
+          <LogOut size={18} />
+          Salir
+        </button>
+      </div>
     </header>
   );
 }

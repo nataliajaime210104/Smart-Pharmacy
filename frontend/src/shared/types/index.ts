@@ -13,6 +13,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   patientAge?: number | null;
+  profilePhotoUrl?: string | null;
 }
 
 export interface UserFormData {
