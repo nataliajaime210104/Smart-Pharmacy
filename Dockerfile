@@ -39,6 +39,7 @@ RUN mkdir -p storage/framework/cache/data \
     storage/framework/views \
     storage/logs \
     storage/app/public/signatures \
+    storage/app/public/profile-photos \
     bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
