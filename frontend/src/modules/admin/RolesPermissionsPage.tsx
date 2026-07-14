@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ShieldCheck,
-  UserRound,
   UserCog,
   Stethoscope,
   Pill,
@@ -12,9 +11,18 @@ import {
   Pencil,
   UserX,
   X,
+  ImagePlus,
 } from 'lucide-react';
 
-import type { User, UserFormData, UserRole, UserStatus } from '../../shared/types';
+import type {
+  User,
+  UserFormData,
+  UserRole,
+  UserStatus,
+} from '../../shared/types';
+
+import UserAvatar from '../../shared/components/UserAvatar';
+
 import {
   createUser,
   deactivateUser,
@@ -29,6 +37,7 @@ const emptyForm: UserFormData = {
   role: 'Paciente',
   status: 'Activo',
   patientAge: '',
+  profilePhoto: null,
 };
 
 const roles: UserRole[] = [
@@ -41,10 +50,13 @@ const roles: UserRole[] = [
 const statuses: UserStatus[] = ['Activo', 'Inactivo'];
 
 function RolesPermissionsPage() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [users, setUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState<UserFormData>(emptyForm);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -83,7 +95,7 @@ function RolesPermissionsPage() {
     if (role === 'Paciente') return 'Tratamientos, Calendario, Asistente IA';
     if (role === 'Administrador Farmacia') return 'Inventario, Reabastecimiento';
 
-    return 'Usuarios, Roles, Auditoría';
+    return 'Usuarios, Roles, Auditoría y acceso total';
   };
 
   const handleChange = (
@@ -96,11 +108,78 @@ function RolesPermissionsPage() {
     }));
   };
 
+  const clearFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
+    setPhotoPreviewUrl('');
+  };
+
+  const handleProfilePhotoChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0] ?? null;
+
+    if (!file) {
+      setFormData((current) => ({
+        ...current,
+        profilePhoto: null,
+      }));
+
+      setPhotoPreviewUrl('');
+      return;
+    }
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+    ];
+
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      setErrorMessage('La foto debe ser una imagen JPG, PNG o WEBP.');
+      clearFileInput();
+
+      setFormData((current) => ({
+        ...current,
+        profilePhoto: null,
+      }));
+
+      return;
+    }
+
+    if (file.size > maxSize) {
+      setErrorMessage('La foto no debe pesar más de 2 MB.');
+      clearFileInput();
+
+      setFormData((current) => ({
+        ...current,
+        profilePhoto: null,
+      }));
+
+      return;
+    }
+
+    setErrorMessage('');
+
+    setFormData((current) => ({
+      ...current,
+      profilePhoto: file,
+    }));
+
+    setPhotoPreviewUrl(URL.createObjectURL(file));
+  };
+
   const openCreateForm = () => {
     setEditingUser(null);
     setFormData(emptyForm);
     setErrorMessage('');
     setSuccessMessage('');
+    clearFileInput();
     setIsFormOpen(true);
   };
 
@@ -109,11 +188,13 @@ function RolesPermissionsPage() {
     setEditingUser(null);
     setErrorMessage('');
     setSuccessMessage('');
+    clearFileInput();
     setIsFormOpen(false);
   };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
+
     setFormData({
       name: user.name,
       email: user.email,
@@ -121,10 +202,12 @@ function RolesPermissionsPage() {
       role: user.role,
       status: user.status,
       patientAge: user.patientAge ?? '',
+      profilePhoto: null,
     });
 
     setErrorMessage('');
     setSuccessMessage('');
+    clearFileInput();
     setIsFormOpen(true);
 
     window.scrollTo({
@@ -209,8 +292,8 @@ function RolesPermissionsPage() {
           <div>
             <h1>Usuarios, Roles y Permisos</h1>
             <p className="page-description">
-              HU-16 y HU-17: Administración de cuentas del sistema, asignación de roles,
-              edición de usuarios y control de acceso por perfil.
+              Administración de cuentas del sistema, asignación de roles,
+              edición de usuarios, foto de perfil y control de acceso por perfil.
             </p>
           </div>
         </div>
@@ -259,6 +342,7 @@ function RolesPermissionsPage() {
                   placeholder="Ejemplo: Dra. Natalia Jaime"
                   value={formData.name}
                   onChange={(event) => handleChange('name', event.target.value)}
+                  required
                 />
               </div>
 
@@ -269,7 +353,55 @@ function RolesPermissionsPage() {
                   placeholder="usuario@hospital.com"
                   value={formData.email}
                   onChange={(event) => handleChange('email', event.target.value)}
+                  required
                 />
+              </div>
+
+              <div className="form-group form-full">
+                <label>Foto de perfil</label>
+
+                <div className="profile-photo-field">
+                  <div className="profile-photo-preview">
+                    {photoPreviewUrl ? (
+                      <img
+                        src={photoPreviewUrl}
+                        alt="Vista previa"
+                      />
+                    ) : editingUser ? (
+                      <UserAvatar
+                        user={editingUser}
+                        size="lg"
+                      />
+                    ) : (
+                      <ImagePlus size={28} />
+                    )}
+                  </div>
+
+                  <div className="profile-photo-input">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleProfilePhotoChange}
+                    />
+
+                    <p className="form-helper-text">
+                      Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 2 MB.
+                    </p>
+
+                    {formData.profilePhoto && (
+                      <p className="form-helper-text">
+                        Imagen seleccionada: {formData.profilePhoto.name}
+                      </p>
+                    )}
+
+                    {editingUser?.profilePhotoUrl && !formData.profilePhoto && (
+                      <p className="form-helper-text">
+                        Si no seleccionas una nueva imagen, se conservará la foto actual.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="form-group">
@@ -283,8 +415,9 @@ function RolesPermissionsPage() {
                       ? 'Dejar vacío para conservar la contraseña'
                       : 'Mínimo 8 caracteres'
                   }
-                  value={formData.password}
+                  value={formData.password ?? ''}
                   onChange={(event) => handleChange('password', event.target.value)}
+                  required={!editingUser}
                 />
               </div>
 
@@ -390,7 +523,6 @@ function RolesPermissionsPage() {
             <thead>
               <tr>
                 <th>Usuario</th>
-                <th>Correo</th>
                 <th>Rol</th>
                 <th>Estado</th>
                 <th>Edad</th>
@@ -403,15 +535,18 @@ function RolesPermissionsPage() {
               {users.map((user) => (
                 <tr key={user.id}>
                   <td>
-                    <div className="table-user">
-                      <div className="table-avatar">
-                        <UserRound size={16} />
+                    <div className="user-table-profile">
+                      <UserAvatar
+                        user={user}
+                        size="sm"
+                      />
+
+                      <div>
+                        <strong>{user.name}</strong>
+                        <span>{user.email}</span>
                       </div>
-                      {user.name}
                     </div>
                   </td>
-
-                  <td>{user.email}</td>
 
                   <td>
                     <span className="role-badge">
@@ -465,6 +600,14 @@ function RolesPermissionsPage() {
                   </td>
                 </tr>
               ))}
+
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={6}>
+                    No hay usuarios registrados.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

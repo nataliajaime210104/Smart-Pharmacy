@@ -19,10 +19,11 @@ export interface User {
 export interface UserFormData {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: UserRole;
-  status: UserStatus;
+  status: string;
   patientAge?: number | '';
+  profilePhoto?: File | null;
 }
 
 export interface Patient {

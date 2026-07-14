@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -42,13 +43,17 @@ class UserController extends Controller
             ],
             'status' => ['required', Rule::in(['Activo', 'Inactivo'])],
             'patientAge' => ['nullable', 'integer', 'min:0', 'max:120'],
+            'profilePhoto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $patientAge = $validated['patientAge'] ?? null;
 
         unset($validated['patientAge']);
+        unset($validated['profilePhoto']);
 
         $user = User::create($validated);
+
+        $this->saveProfilePhotoIfPresent($request, $user);
 
         $this->createPatientProfileIfNeeded($user, $patientAge);
 
@@ -83,17 +88,22 @@ class UserController extends Controller
             ],
             'status' => ['required', Rule::in(['Activo', 'Inactivo'])],
             'patientAge' => ['nullable', 'integer', 'min:0', 'max:120'],
+            'profilePhoto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         $patientAge = $validated['patientAge'] ?? null;
 
         unset($validated['patientAge']);
+        unset($validated['profilePhoto']);
 
         if (empty($validated['password'])) {
             unset($validated['password']);
         }
 
         $user->update($validated);
+
+        $this->saveProfilePhotoIfPresent($request, $user);
+
         $user->refresh();
 
         $this->createPatientProfileIfNeeded($user, $patientAge);
@@ -120,6 +130,31 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Usuario desactivado correctamente.',
             'data' => $this->formatUser($user),
+        ]);
+    }
+
+    private function saveProfilePhotoIfPresent(Request $request, User $user): void
+    {
+        if (!$request->hasFile('profilePhoto')) {
+            return;
+        }
+
+        if (!empty($user->profile_photo_path)) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        $file = $request->file('profilePhoto');
+
+        $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+
+        $photoPath = $file->storeAs(
+            'profile-photos',
+            $fileName,
+            'public'
+        );
+
+        $user->update([
+            'profile_photo_path' => $photoPath,
         ]);
     }
 

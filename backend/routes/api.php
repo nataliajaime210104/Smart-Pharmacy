@@ -27,6 +27,7 @@ Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'upda
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
+Route::post('/users/{user}', [UserController::class, 'update']);
 Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate']);
 
 Route::get('/medicines', [MedicineController::class, 'index']);
