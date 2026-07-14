@@ -37,7 +37,12 @@ function DoctorLayout({ user, onLogout }: Props) {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DoctorDashboardPage />;
+        return (
+          <DoctorDashboardPage
+            currentUser={user}
+            onNavigate={setCurrentPage}
+          />
+        );
 
       case 'registerPatient':
         return <RegisterPatientPage />;
@@ -56,7 +61,12 @@ function DoctorLayout({ user, onLogout }: Props) {
         return <AiAssistantPage />;
 
       default:
-        return <DoctorDashboardPage />;
+        return (
+          <DoctorDashboardPage
+            currentUser={user}
+            onNavigate={setCurrentPage}
+          />
+        );
     }
   };
 
