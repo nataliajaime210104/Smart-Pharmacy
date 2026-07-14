@@ -45,7 +45,6 @@ class PatientController extends Controller
             'fullName' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-
             'birthDate' => ['nullable', 'date'],
             'age' => ['nullable', 'integer', 'min:0', 'max:120'],
             'diagnosis' => ['nullable', 'string', 'max:255'],
@@ -105,12 +104,14 @@ class PatientController extends Controller
                     'medicalConditions' => $patient->medical_conditions,
                     'clinicalNotes' => $patient->clinical_notes,
                     'lastTreatment' => $patient->last_treatment,
+                    'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
                         'role' => $user->role,
                         'status' => $user->status,
+                        'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
                     ],
                 ],
             ], 201);
@@ -230,6 +231,7 @@ class PatientController extends Controller
             'email' => $patient->user?->email,
             'birthDate' => $patient->birth_date,
             'age' => $patient->age ?? ($patient->birth_date ? Carbon::parse($patient->birth_date)->age : null),
+            'profilePhotoUrl' => $patient->user ? $this->getProfilePhotoUrl($patient->user) : null,
 
             'clinicalDiagnosis' => $patient->diagnosis ?? 'Pendiente por registrarse',
             'latestConsultationDiagnosis' => $latestPrescription?->diagnosis ?? 'Sin receta registrada',
@@ -240,6 +242,15 @@ class PatientController extends Controller
                 $latestPrescription,
                 $patient->last_treatment
             ),
+
+            'user' => $patient->user ? [
+                'id' => $patient->user->id,
+                'name' => $patient->user->name,
+                'email' => $patient->user->email,
+                'role' => $patient->user->role,
+                'status' => $patient->user->status,
+                'profilePhotoUrl' => $this->getProfilePhotoUrl($patient->user),
+            ] : null,
 
             'prescriptions' => $prescriptions
                 ->map(function ($prescription) {
@@ -293,5 +304,14 @@ class PatientController extends Controller
                 return "{$medicine} x {$quantity} / {$dosage} / {$frequency} / {$duration}";
             })
             ->implode(' | ');
+    }
+
+    private function getProfilePhotoUrl(User $user): ?string
+    {
+        if (empty($user->profile_photo_path)) {
+            return null;
+        }
+
+        return url('/storage/' . ltrim($user->profile_photo_path, '/'));
     }
 }

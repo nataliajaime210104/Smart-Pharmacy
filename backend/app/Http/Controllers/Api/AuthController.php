@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Patient;
 
 class AuthController extends Controller
 {
@@ -37,6 +37,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'status' => $user->status,
+                'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
             ],
         ]);
     }
@@ -78,7 +79,17 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'status' => $user->status,
+                'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
             ],
         ], 201);
+    }
+
+    private function getProfilePhotoUrl(User $user): ?string
+    {
+        if (empty($user->profile_photo_path)) {
+            return null;
+        }
+
+        return url('/storage/' . ltrim($user->profile_photo_path, '/'));
     }
 }

@@ -45,6 +45,7 @@ class UserController extends Controller
         ]);
 
         $patientAge = $validated['patientAge'] ?? null;
+
         unset($validated['patientAge']);
 
         $user = User::create($validated);
@@ -85,6 +86,7 @@ class UserController extends Controller
         ]);
 
         $patientAge = $validated['patientAge'] ?? null;
+
         unset($validated['patientAge']);
 
         if (empty($validated['password'])) {
@@ -192,7 +194,17 @@ class UserController extends Controller
             'email' => $user->email,
             'role' => $user->role,
             'status' => $user->status,
+            'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
             'patientAge' => $user->patient?->age,
         ];
+    }
+
+    private function getProfilePhotoUrl(User $user): ?string
+    {
+        if (empty($user->profile_photo_path)) {
+            return null;
+        }
+
+        return url('/storage/' . ltrim($user->profile_photo_path, '/'));
     }
 }
