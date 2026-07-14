@@ -1,588 +1,333 @@
-import { useEffect, useState } from "react";
-import { Download, Pill, Search } from "lucide-react";
-import type { User } from "../../shared/types";
+import { useEffect, useMemo, useState } from 'react';
 
 import {
-  getMyPrescriptions,
-  getPrescriptionPdfUrl,
-} from "./services/patient.service";
+  AlertCircle,
+  CalendarCheck,
+  CheckCircle2,
+  Download,
+  FileText,
+  Pill,
+  Search,
+  Stethoscope,
+} from 'lucide-react';
+
+import type {
+  PatientPrescription,
+  User,
+} from '../../shared/types';
+
+import { getMyPrescriptions } from './services/patient.service';
 
 interface Props {
-  user: User;
+  currentUser: User;
 }
 
-
-function MyPrescriptionsPage({user}: Props) {
-
-  const [prescriptions, setPrescriptions] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
+function MyPrescriptionsPage({ currentUser }: Props) {
+  const [prescriptions, setPrescriptions] = useState<PatientPrescription[]>([]);
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
- useEffect(() => {
-  async function loadPrescriptions() {
+  const loadPrescriptions = async () => {
     try {
-      const response = await getMyPrescriptions(user.id);
+      setLoading(true);
+      setError('');
 
-      setPrescriptions(response.data);
+      const data = await getMyPrescriptions(currentUser.id);
 
+      setPrescriptions(data);
     } catch (error) {
-      console.error(
-        "Error cargando recetas:",
-        error
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible cargar tus recetas.'
       );
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  loadPrescriptions();
+  useEffect(() => {
+    loadPrescriptions();
+  }, [currentUser.id]);
 
-}, [user.id]);
+  const filteredPrescriptions = useMemo(() => {
+    const value = search.trim().toLowerCase();
 
+    if (!value) {
+      return prescriptions;
+    }
 
-  const filtered = prescriptions.filter(
-    (item)=> 
-      item.folio
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+    return prescriptions.filter((prescription) => {
+      const medicines = prescription.items
+        .map((item) => item.medicineName)
+        .join(' ')
+        .toLowerCase();
 
+      return (
+        prescription.folio?.toLowerCase().includes(value) ||
+        prescription.diagnosis?.toLowerCase().includes(value) ||
+        prescription.doctorName?.toLowerCase().includes(value) ||
+        prescription.status?.toLowerCase().includes(value) ||
+        medicines.includes(value)
+      );
+    });
+  }, [prescriptions, search]);
 
-  if(loading){
+  const signedPrescriptions = prescriptions.filter(
+    (prescription) => prescription.status === 'Firmada'
+  ).length;
 
-    return (
-      <div className="page-card">
-        Cargando recetas...
-      </div>
-    );
+  const pendingPrescriptions = prescriptions.length - signedPrescriptions;
 
-  }
+  const openPdf = (pdfUrl?: string | null) => {
+    if (!pdfUrl) {
+      return;
+    }
 
+    window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const getStatusClass = (status: string) => {
+    if (status === 'Firmada') {
+      return 'patient-status signed';
+    }
+
+    if (status === 'Pendiente') {
+      return 'patient-status pending';
+    }
+
+    return 'patient-status neutral';
+  };
 
   return (
-
-<div className="space-y-6">
-
-
-  {/* ENCABEZADO */}
-
-  <div
-    className="
-    bg-gradient-to-r 
-    from-blue-600 
-    to-cyan-500
-    rounded-3xl
-    p-8
-    text-white
-    shadow-xl
-    "
-  >
-
-    <h1 className="
-      text-4xl 
-      font-bold
-      flex 
-      items-center 
-      gap-3
-    ">
-
-      <Pill size={40}/>
-
-      Mis recetas médicas
-
-    </h1>
-
-
-    <p className="mt-3 text-blue-100">
-
-      Consulta tus medicamentos,
-      indicaciones y tratamientos actuales.
-
-    </p>
-
-
-  </div>
-
-
-
-
-
-  {/* BUSCADOR */}
-
-  <div className="relative">
-
-    <Search
-      className="
-      absolute 
-      left-4 
-      top-3.5 
-      text-gray-400
-      "
-    />
-
-
-    <input
-
-      className="
-      w-full
-      rounded-2xl
-      border
-      bg-white
-      p-3
-      pl-12
-      shadow-sm
-      focus:ring-2
-      focus:ring-blue-400
-      outline-none
-      "
-
-      placeholder="Buscar por folio..."
-
-      value={search}
-
-      onChange={
-        e=>setSearch(e.target.value)
-      }
-
-    />
-
-
-  </div>
-
-
-
-
-
-
-{
-filtered.length === 0 ? (
-
-<div
-className="
-bg-white
-rounded-3xl
-p-10
-text-center
-shadow
-"
->
-
-<p className="text-gray-500 text-lg">
-
-No tienes recetas disponibles.
-
-</p>
-
-
-</div>
-
-
-)
-
-:
-
-
-filtered.map(recipe=>(
-
-
-<div
-
-key={recipe.id}
-
-className="
-bg-white
-rounded-3xl
-shadow-lg
-border
-overflow-hidden
-hover:shadow-2xl
-transition
-"
-
->
-
-
-
-{/* CABECERA RECETA */}
-
-<div
-
-className="
-bg-gradient-to-r
-from-slate-800
-to-blue-700
-p-6
-text-white
-flex
-justify-between
-items-center
-"
-
->
-
-
-<div>
-
-
-<h2 className="
-text-2xl
-font-bold
-">
-
-💊 Receta {recipe.folio}
-
-</h2>
-
-
-<p className="mt-2 text-blue-100">
-
-Tratamiento médico
-
-</p>
-
-
-</div>
-
-
-
-
-<span
-
-className={`
-
-px-4
-py-2
-rounded-full
-font-semibold
-
-${
-recipe.status === "Firmada"
-
-?
-
-"bg-green-400 text-green-900"
-
-:
-
-"bg-yellow-300 text-yellow-900"
-
+    <div className="patient-prescriptions-page">
+      <div className="patient-page-header">
+        <div className="patient-page-title">
+          <div className="patient-page-icon">
+            <FileText size={30} />
+          </div>
+
+          <div>
+            <h1>Mis recetas médicas</h1>
+            <p>
+              Consulta tus recetas asignadas, medicamentos indicados y descarga
+              el PDF cuando la receta esté firmada.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="patient-summary-grid">
+        <div className="patient-summary-card">
+          <div className="patient-summary-icon">
+            <FileText size={24} />
+          </div>
+
+          <div>
+            <span>Total de recetas</span>
+            <strong>{prescriptions.length}</strong>
+          </div>
+        </div>
+
+        <div className="patient-summary-card">
+          <div className="patient-summary-icon signed">
+            <CheckCircle2 size={24} />
+          </div>
+
+          <div>
+            <span>Recetas firmadas</span>
+            <strong>{signedPrescriptions}</strong>
+          </div>
+        </div>
+
+        <div className="patient-summary-card">
+          <div className="patient-summary-icon pending">
+            <AlertCircle size={24} />
+          </div>
+
+          <div>
+            <span>Pendientes</span>
+            <strong>{pendingPrescriptions}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="patient-toolbar">
+        <div className="patient-search">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Buscar por folio, diagnóstico, médico o medicamento..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+      </div>
+
+      {loading && (
+        <div className="patient-empty-state">
+          <FileText size={42} />
+          <h3>Cargando tus recetas...</h3>
+          <p>Estamos consultando la información médica asignada a tu cuenta.</p>
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="patient-error-state">
+          <AlertCircle size={42} />
+          <h3>No fue posible cargar tus recetas</h3>
+          <p>{error}</p>
+          <button onClick={loadPrescriptions}>
+            Intentar nuevamente
+          </button>
+        </div>
+      )}
+
+      {!loading && !error && filteredPrescriptions.length === 0 && (
+        <div className="patient-empty-state">
+          <FileText size={42} />
+          <h3>No hay recetas para mostrar</h3>
+          <p>
+            Cuando tu médico genere y asigne una receta a tu expediente,
+            aparecerá en esta sección.
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && filteredPrescriptions.length > 0 && (
+        <div className="patient-prescription-list">
+          {filteredPrescriptions.map((prescription) => (
+            <article
+              key={prescription.id}
+              className="patient-prescription-card"
+            >
+              <div className="patient-prescription-header">
+                <div>
+                  <span className="patient-card-label">
+                    Receta médica
+                  </span>
+
+                  <h2>{prescription.folio}</h2>
+                </div>
+
+                <span className={getStatusClass(prescription.status)}>
+                  {prescription.status}
+                </span>
+              </div>
+
+              <div className="patient-prescription-info">
+                <div className="patient-info-item">
+                  <Stethoscope size={18} />
+                  <div>
+                    <span>Médico</span>
+                    <strong>
+                      {prescription.doctorName ?? 'No registrado'}
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="patient-info-item">
+                  <CalendarCheck size={18} />
+                  <div>
+                    <span>Fecha de firma</span>
+                    <strong>
+                      {prescription.signedAt ?? 'Pendiente de firma'}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="patient-diagnosis-box">
+                <span>Diagnóstico</span>
+                <p>
+                  {prescription.diagnosis || 'Sin diagnóstico registrado'}
+                </p>
+              </div>
+
+              {prescription.notes && (
+                <div className="patient-notes-box">
+                  <span>Notas médicas</span>
+                  <p>{prescription.notes}</p>
+                </div>
+              )}
+
+              <div className="patient-medicines-section">
+                <h3>
+                  <Pill size={20} />
+                  Medicamentos indicados
+                </h3>
+
+                <div className="patient-medicines-list">
+                  {prescription.items.map((item, index) => (
+                    <div
+                      key={`${prescription.id}-${index}`}
+                      className="patient-medicine-card"
+                    >
+                      <div className="patient-medicine-title">
+                        <strong>
+                          {item.medicineName ?? 'Medicamento no registrado'}
+                        </strong>
+
+                        <span>
+                          Cantidad: {item.quantity}
+                        </span>
+                      </div>
+
+                      <div className="patient-medicine-details">
+                        <p>
+                          <strong>Dosis:</strong>{' '}
+                          {item.dosage || 'No especificada'}
+                        </p>
+
+                        <p>
+                          <strong>Horario:</strong>{' '}
+                          {item.frequency || 'No especificado'}
+                        </p>
+
+                        <p>
+                          <strong>Duración:</strong>{' '}
+                          {item.duration || 'No especificada'}
+                        </p>
+
+                        {item.instructions && (
+                          <p className="patient-instructions">
+                            <strong>Indicaciones:</strong>{' '}
+                            {item.instructions}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {prescription.verificationCode && (
+                <div className="patient-verification-code">
+                  Código de verificación:{' '}
+                  <strong>{prescription.verificationCode}</strong>
+                </div>
+              )}
+
+              <div className="patient-card-actions">
+                <button
+                  type="button"
+                  className="patient-pdf-button"
+                  disabled={!prescription.pdfUrl}
+                  onClick={() => openPdf(prescription.pdfUrl)}
+                >
+                  <Download size={18} />
+                  {prescription.pdfUrl
+                    ? 'Ver / descargar PDF'
+                    : 'PDF disponible al firmarse'}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
-
-`}
-
->
-
-{recipe.status}
-
-</span>
-
-
-
-</div>
-
-
-
-
-
-<div className="p-6 space-y-5">
-
-
-
-{/* INFORMACION */}
-
-<div className="
-grid
-md:grid-cols-2
-gap-4
-">
-
-
-<div
-
-className="
-bg-blue-50
-rounded-2xl
-p-4
-"
-
->
-
-<p className="text-sm text-gray-500">
-
-Diagnóstico
-
-</p>
-
-
-<p className="font-bold text-blue-900">
-
-{recipe.diagnosis || 
-"Sin diagnóstico"}
-
-</p>
-
-
-</div>
-
-
-
-
-
-<div
-
-className="
-bg-purple-50
-rounded-2xl
-p-4
-"
-
->
-
-<p className="text-sm text-gray-500">
-
-Médico
-
-</p>
-
-
-<p className="font-bold text-purple-900">
-
-{recipe.doctorName ||
-"No registrado"}
-
-</p>
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-{/* MEDICAMENTOS */}
-
-
-<div>
-
-
-<h3 className="
-text-xl
-font-bold
-mb-4
-flex
-items-center
-gap-2
-">
-
-💊 Medicamentos indicados
-
-</h3>
-
-
-
-<div className="
-grid
-md:grid-cols-2
-gap-4
-">
-
-
-{
-recipe.items?.map(
-(medicine:any)=>(
-
-
-<div
-
-key={medicine.id}
-
-className="
-border
-rounded-2xl
-p-5
-bg-gray-50
-hover:bg-blue-50
-transition
-"
-
->
-
-
-<h4 className="
-font-bold
-text-lg
-text-blue-700
-">
-
-{medicine.medicineName}
-
-</h4>
-
-
-
-<div className="mt-3 space-y-2 text-gray-700">
-
-
-<p>
-
-<b>Dosis:</b>
-
-{" "}
-
-{medicine.dosage ||
-"No indicada"}
-
-</p>
-
-
-<p>
-
-<b>Horario:</b>
-
-{" "}
-
-{medicine.frequency ||
-"No indicado"}
-
-</p>
-
-
-<p>
-
-<b>Duración:</b>
-
-{" "}
-
-{medicine.duration ||
-"No indicada"}
-
-</p>
-
-
-
-{
-medicine.instructions && (
-
-<p>
-
-<b>Indicaciones:</b>
-
-{" "}
-
-{medicine.instructions}
-
-</p>
-
-)
-
-}
-
-
-
-</div>
-
-
-</div>
-
-
-))
-
-}
-
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-{/* BOTONES */}
-
-<div
-
-className="
-border-t
-pt-5
-flex
-flex-wrap
-gap-3
-"
-
->
-
-
-<button
-
-onClick={()=>
-
-window.open(
-getPrescriptionPdfUrl(recipe.id),
-"_blank"
-)
-
-}
-
-className="
-bg-blue-600
-hover:bg-blue-700
-text-white
-px-6
-py-3
-rounded-2xl
-flex
-items-center
-gap-2
-font-semibold
-transition
-"
-
->
-
-<Download size={20}/>
-
-Descargar receta PDF
-
-</button>
-
-
-
-
-
-</div>
-
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-))
-
-}
-
-
-
-</div>
-
-);
-
-}
-
 
 export default MyPrescriptionsPage;

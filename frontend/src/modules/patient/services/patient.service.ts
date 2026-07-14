@@ -1,12 +1,14 @@
-import { apiGet } from "../../../shared/services/api";
+import { apiGet } from '../../../shared/services/api';
+
+import type {
+  ApiResponse,
+  PatientPrescription,
+} from '../../../shared/types';
 
 export async function getMyPrescriptions(userId: number) {
-  return apiGet<{
-    success: boolean;
-    data: any[];
-  }>(`/patient/prescriptions/${userId}`);
-}
+  const response = await apiGet<ApiResponse<PatientPrescription[]>>(
+    `/patient/prescriptions/${userId}`
+  );
 
-export function getPrescriptionPdfUrl(id: number) {
-  return `/api/prescriptions/${id}/pdf`;
+  return response.data ?? [];
 }
