@@ -57,6 +57,7 @@ class UserController extends Controller
 
         $this->createPatientProfileIfNeeded($user, $patientAge);
 
+        $user->refresh();
         $user->load('patient');
 
         return response()->json([
@@ -130,6 +131,21 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Usuario desactivado correctamente.',
             'data' => $this->formatUser($user),
+        ]);
+    }
+
+    public function profilePhoto(string $filename)
+    {
+        $safeFilename = basename($filename);
+
+        $path = storage_path('app/public/profile-photos/' . $safeFilename);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path, [
+            'Cache-Control' => 'public, max-age=86400',
         ]);
     }
 
@@ -240,6 +256,6 @@ class UserController extends Controller
             return null;
         }
 
-        return url('/storage/' . ltrim($user->profile_photo_path, '/'));
+        return '/api/profile-photos/' . basename($user->profile_photo_path);
     }
 }

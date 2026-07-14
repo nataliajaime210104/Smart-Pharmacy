@@ -29,6 +29,7 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{user}', [UserController::class, 'update']);
 Route::post('/users/{user}', [UserController::class, 'update']);
 Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate']);
+Route::get('/profile-photos/{filename}', [UserController::class, 'profilePhoto']);
 
 Route::get('/medicines', [MedicineController::class, 'index']);
 Route::post('/medicines', [MedicineController::class, 'store']);

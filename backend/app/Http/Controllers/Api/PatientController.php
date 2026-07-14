@@ -332,6 +332,6 @@ class PatientController extends Controller
             return null;
         }
 
-        return url('/storage/' . ltrim($user->profile_photo_path, '/'));
+        return '/api/profile-photos/' . basename($user->profile_photo_path);
     }
 }
