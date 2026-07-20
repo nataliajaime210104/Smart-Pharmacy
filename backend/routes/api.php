@@ -29,6 +29,12 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/patients', [PatientController::class, 'index']);
 Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'updateClinicalData']);
+Route::get( '/patient/schedules/{userId}',[PatientController::class, 'mySchedules']);
+Route::patch(
+    '/patient/schedules/{id}/taken',
+    [PatientController::class, 'markScheduleAsTaken']
+);
+
 
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
@@ -54,3 +60,6 @@ Route::post('/prescriptions/{prescription}/dispense', [PrescriptionController::c
 Route::get('/prescriptions/{prescription}/pdf', [PrescriptionController::class, 'pdf']);
 
 Route::post('/ai-assistant/ask', [AiAssistantController::class, 'ask']);    
+Route::post('/patient/assistant',[AiAssistantController::class, 'patientAsk']);
+
+//notificaciones de paciente

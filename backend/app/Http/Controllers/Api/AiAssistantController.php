@@ -130,6 +130,188 @@ class AiAssistantController extends Controller
         }
     }
 
+    //ia de paciente--------------------------------------------
+    public function patientAsk(Request $request)
+{
+
+$request->validate([
+'question'=>'required|string',
+'userId'=>'required'
+]);
+
+
+$patient = Patient::where(
+'user_id',
+$request->userId
+)
+->with([
+'prescriptions.items.medicine'
+])
+->first();
+
+
+
+if(!$patient){
+
+   return response()->json([
+        'success'=>true,
+        'answer'=>'Respuesta de Gemini aquí'
+    ]);
+
+}
+
+
+
+$context = [
+
+'nombre'=>$patient->full_name,
+
+'diagnostico'=>$patient->diagnosis,
+
+'alergias'=>$patient->allergies,
+
+'condiciones'=>$patient->medical_conditions,
+
+
+'recetas'=>
+$patient->prescriptions->map(function($p){
+
+return [
+
+'folio'=>$p->folio,
+
+'medicamentos'=>
+$p->items->map(function($i){
+
+return [
+
+'nombre'=>$i->medicine->name,
+
+'dosis'=>$i->dosage,
+
+'horario'=>$i->frequency,
+
+'duracion'=>$i->duration
+
+];
+
+})
+
+];
+
+})
+
+];
+
+
+
+$prompt = "
+
+Eres el asistente médico virtual de SmartPharmacy.
+
+Tu función es ayudar al paciente a entender la información registrada en su expediente clínico.
+
+Usa únicamente los datos proporcionados.
+
+REGLAS:
+
+- No inventes información.
+- No diagnostiques enfermedades.
+- No cambies medicamentos.
+- No cambies dosis.
+- No indiques suspender tratamientos.
+- Si un dato no existe escribe 'No registrado'.
+- Responde siempre en español.
+- Responde únicamente lo que el paciente pregunte.
+- No muestres todo el expediente a menos que el paciente lo solicite explícitamente.
+- Si pregunta por medicamentos, responde solo los medicamentos.
+- Si pregunta por dosis, responde solo las dosis.
+- Si pregunta por horarios, responde solo los horarios.
+- Si pregunta por diagnóstico, responde solo el diagnóstico.
+- Si pregunta por alergias, responde solo las alergias.
+- Si pregunta por el expediente completo, entonces sí muestra toda la información organizada por secciones.
+
+EXPEDIENTE DEL PACIENTE:
+
+".json_encode($context)."
+
+PREGUNTA DEL PACIENTE:
+
+".$request->question."
+
+";
+try {
+
+    $apiKey = config('services.gemini.api_key');
+    $model = config('services.gemini.model');
+
+
+    $response = Http::timeout(40)
+        ->withHeaders([
+            'Content-Type' => 'application/json',
+            'x-goog-api-key' => $apiKey,
+        ])
+        ->post(
+            "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent",
+            [
+                'contents'=>[
+                    [
+                        'parts'=>[
+                            [
+                                'text'=>$prompt
+                            ]
+                        ]
+                    ]
+                ],
+                'generationConfig'=>[
+                    'temperature'=>0.2,
+                    'maxOutputTokens'=>1000
+                ]
+            ]
+        );
+
+
+    if(!$response->successful()){
+
+        return response()->json([
+            'success'=>false,
+            'message'=>'Gemini no respondió',
+            'error'=>$response->json()
+        ],422);
+
+    }
+
+
+    $data = $response->json();
+
+
+    $answer = data_get(
+        $data,
+        'candidates.0.content.parts.0.text'
+    );
+
+
+    return response()->json([
+        'success'=>true,
+        'answer'=>$answer ?? 'No pude generar respuesta'
+    ]);
+
+
+}catch(\Throwable $e){
+
+    return response()->json([
+        'success'=>false,
+        'message'=>$e->getMessage()
+    ],500);
+
+}
+
+
+// aquí mandas $prompt a Gemini
+
+
+}
+
     private function getSafetyResponse(string $question): ?string
     {
         $normalizedQuestion = Str::lower($question);

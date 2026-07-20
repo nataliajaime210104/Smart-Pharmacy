@@ -7,6 +7,7 @@ use App\Models\Patient;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Prescription;
+use App\Models\MedicationSchedule;
 
 class PatientController extends Controller
 {
@@ -36,6 +37,28 @@ class PatientController extends Controller
             'data' => $patients,
         ]);
     }      
+
+    //notificacion paciente
+    public function markScheduleAsTaken($id)
+{
+    $schedule = MedicationSchedule::find($id);
+
+    if (!$schedule) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Horario no encontrado.'
+        ], 404);
+    }
+
+    $schedule->status = 'Tomado';
+    $schedule->taken_at = now();
+    $schedule->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Medicamento marcado como tomado.'
+    ]);
+}
     
 
 
@@ -95,6 +118,57 @@ public function myPrescriptions($userId)
     return response()->json([
         'success' => true,
         'data' => $prescriptions
+    ]);
+}
+
+    public function mySchedules($userId)
+{
+    $patient = Patient::where('user_id', $userId)->first();
+
+    if (!$patient) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Paciente no encontrado',
+            'data' => []
+        ]);
+    }
+
+    $schedules = MedicationSchedule::where('patient_id', $patient->id)
+        ->with([
+            'prescriptionItem.medicine'
+        ])
+        ->orderBy('scheduled_at')
+        ->get()
+        ->map(function ($schedule) {
+
+            return [
+
+                'id' => $schedule->id,
+
+                'medicineName' =>
+                    $schedule->prescriptionItem?->medicine?->name,
+
+                'dosage' =>
+                    $schedule->prescriptionItem?->dosage,
+
+                'frequency' =>
+                    $schedule->prescriptionItem?->frequency,
+
+                'scheduledAt' =>
+                    $schedule->scheduled_at?->format('Y-m-d H:i:s'),
+
+                'status' =>
+                    $schedule->status,
+
+                'takenAt' =>
+                    optional($schedule->taken_at)->format('Y-m-d H:i:s'),
+
+            ];
+        });
+
+    return response()->json([
+        'success' => true,
+        'data' => $schedules
     ]);
 }
 
