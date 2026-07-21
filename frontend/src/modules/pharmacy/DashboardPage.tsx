@@ -332,7 +332,7 @@ function DashboardPage({ user }: Props) {
 
       {/* GRAFICAS */}
 
-
+ 
       <section className="dashboard-grid">
 
 

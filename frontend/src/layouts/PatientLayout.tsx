@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
 import type { User } from '../shared/types';
+import MySchedulesPage from "../modules/patient/MySchedulesPage";
+
 
 import Navbar from '../shared/components/Navbar';
 
@@ -10,12 +12,18 @@ import Navbar from '../shared/components/Navbar';
 import {
   Home,
   ClipboardList,
+   Clock3,
 } from 'lucide-react';
 
+
+// notificacion
+
+
 type PatientPage =
-  | 'dashboard'
-  | 'prescriptions'
-  | 'assistant';
+  | "dashboard"
+  | "prescriptions"
+  | "schedules"
+  | "assistant";
 
 interface Props {
   user: User;
@@ -44,6 +52,13 @@ function PatientLayout({ user, onLogout }: Props) {
             </p>
           </div>
         );
+
+        case "schedules":
+  return (
+    <MySchedulesPage
+      user={user}
+    />
+  );
 
             case 'prescriptions':
             return (
@@ -107,6 +122,20 @@ function PatientLayout({ user, onLogout }: Props) {
             <ClipboardList className="nav-icon" />
             Mis recetas
           </button>
+
+          <button
+  className={
+    currentPage === "schedules"
+      ? "active"
+      : ""
+  }
+  onClick={() =>
+    setCurrentPage("schedules")
+  }
+>
+  <Clock3 className="nav-icon" />
+  Mis horarios
+</button>
           <button
   className={
     currentPage === 'assistant'
