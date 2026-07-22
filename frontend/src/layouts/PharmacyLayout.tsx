@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import type { User } from '../shared/types';
+import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import Navbar from '../shared/components/Navbar';
 
@@ -19,6 +20,12 @@ type PharmacyPage =
   | 'medicines'
   | 'inventory';
 
+const pharmacyPageTitles: Record<PharmacyPage, string> = {
+  dashboard: 'Inicio',
+  medicines: 'Medicamentos',
+  inventory: 'Inventario',
+};
+
 interface Props {
   user: User;
   onLogout: () => void;
@@ -28,9 +35,13 @@ function PharmacyLayout({ user, onLogout }: Props) {
   const [currentPage, setCurrentPage] =
     useState<PharmacyPage>('dashboard');
 
+  useDocumentTitle(
+    user.role || 'Farmacia',
+    pharmacyPageTitles[currentPage],
+  );
+
   const renderPage = () => {
     switch (currentPage) {
-
       case 'dashboard':
         return <DashboardPage user={user} />;
 
@@ -51,9 +62,7 @@ function PharmacyLayout({ user, onLogout }: Props) {
 
   return (
     <div className="app-layout">
-
       <aside className="sidebar">
-
         <div className="brand">
           <img
             src="/assets/logo/smartpharmacy-logo.png"
@@ -64,7 +73,6 @@ function PharmacyLayout({ user, onLogout }: Props) {
         </div>
 
         <nav>
-
           <button
             className={
               currentPage === 'dashboard'
@@ -106,13 +114,10 @@ function PharmacyLayout({ user, onLogout }: Props) {
             <Boxes className="nav-icon" />
             Inventario
           </button>
-
         </nav>
-
       </aside>
 
       <main className="main-content">
-
         <Navbar
           user={user}
           onLogout={onLogout}
@@ -121,9 +126,7 @@ function PharmacyLayout({ user, onLogout }: Props) {
         <section className="page-content">
           {renderPage()}
         </section>
-
       </main>
-
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { User } from './shared/types';
 
@@ -13,6 +13,14 @@ import PatientLayout from './layouts/PatientLayout';
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authPage, setAuthPage] = useState<'login' | 'register'>('login');
+
+  useEffect(() => {
+  if (currentUser) {
+    return;
+  }
+
+  const moduleName = authPage === 'login' ? 'Iniciar sesión' : 'Registro';
+  document.title = `Smart Pharmacy | ${moduleName}`; }, [currentUser, authPage]);
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);

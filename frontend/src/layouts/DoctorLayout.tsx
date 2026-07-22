@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { User } from '../shared/types';
 
 import Navbar from '../shared/components/Navbar';
+import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import DoctorDashboardPage from '../modules/doctor/DoctorDashboardPage';
 import PatientRecordPage from '../modules/doctor/PatientRecordPage';
@@ -25,14 +26,26 @@ type DoctorPage =
   | 'prescriptions'
   | 'assistant';
 
+const doctorPageTitles: Record<DoctorPage, string> = {
+  dashboard: 'Inicio',
+  registerPatient: 'Registrar paciente',
+  record: 'Expediente clínico',
+  prescriptions: 'Recetas',
+  assistant: 'Asistente IA',
+};
+
 interface Props {
   user: User;
   onLogout: () => void;
 }
 
 function DoctorLayout({ user, onLogout }: Props) {
-  const [currentPage, setCurrentPage] =
-    useState<DoctorPage>('dashboard');
+  const [currentPage, setCurrentPage] = useState<DoctorPage>('dashboard');
+
+  useDocumentTitle(
+    user.role || 'Medico',
+    doctorPageTitles[currentPage],
+  );
 
   const renderPage = () => {
     switch (currentPage) {

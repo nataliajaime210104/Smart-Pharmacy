@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import type { User } from '../shared/types';
+import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import Navbar from '../shared/components/Navbar';
 import UserAvatar from '../shared/components/UserAvatar';
@@ -22,14 +23,25 @@ type PatientPage =
   | 'schedules'
   | 'assistant';
 
+  const patientPageTitles: Record<PatientPage, string> = {
+    dashboard: 'Inicio',
+    prescriptions: 'Mis recetas',
+    schedules: 'Mis horarios',
+    assistant: 'Asistente IA',
+  };
+
 interface Props {
   user: User;
   onLogout: () => void;
 }
 
 function PatientLayout({ user, onLogout }: Props) {
-  const [currentPage, setCurrentPage] =
-    useState<PatientPage>('dashboard');
+  const [currentPage, setCurrentPage] = useState<PatientPage>('dashboard');
+
+  useDocumentTitle(
+    user.role || 'Paciente',
+    patientPageTitles[currentPage],
+  );
 
   const renderPage = () => {
     switch (currentPage) {

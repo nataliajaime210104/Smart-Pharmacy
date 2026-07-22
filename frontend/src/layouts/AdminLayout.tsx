@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { User } from '../shared/types';
 
 import Navbar from '../shared/components/Navbar';
+import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import DoctorDashboardPage from '../modules/doctor/DoctorDashboardPage';
 import RegisterPatientPage from '../modules/doctor/RegisterPatientPage';
@@ -36,14 +37,29 @@ type AdminPage =
   | 'roles'
   | 'assistant';
 
+const adminPageTitles: Record<AdminPage, string> = {
+  dashboard: 'Inicio',
+  registerPatient: 'Registrar paciente',
+  record: 'Expediente clínico',
+  prescriptions: 'Recetas',
+  medicines: 'Medicamentos',
+  inventory: 'Inventario',
+  roles: 'Usuarios y roles',
+  assistant: 'Asistente IA',
+};
+
 interface Props {
   user: User;
   onLogout: () => void;
 }
 
 function AdminLayout({ user, onLogout }: Props) {
-  const [currentPage, setCurrentPage] =
-    useState<AdminPage>('dashboard');
+  const [currentPage, setCurrentPage] = useState<AdminPage>('dashboard');
+
+  useDocumentTitle(
+    user.role || 'Administrador Sistema',
+    adminPageTitles[currentPage],
+  );
 
   const renderPage = () => {
     switch (currentPage) {
