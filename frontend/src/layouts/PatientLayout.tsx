@@ -4,6 +4,7 @@ import type { User } from '../shared/types';
 import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import Navbar from '../shared/components/Navbar';
+import PortalSidebar, {type PortalSidebarItem,} from '../shared/components/PortalSidebar';
 import UserAvatar from '../shared/components/UserAvatar';
 
 import MedicalAssistantPage from '../modules/patient/MedicalAssistantPage';
@@ -12,8 +13,8 @@ import MySchedulesPage from '../modules/patient/MySchedulesPage';
 
 import {
   Bot,
-  ClipboardList,
   Clock3,
+  ClipboardList,
   Home,
 } from 'lucide-react';
 
@@ -22,6 +23,34 @@ type PatientPage =
   | 'prescriptions'
   | 'schedules'
   | 'assistant';
+
+  const patientSidebarItems:
+  PortalSidebarItem<PatientPage>[] = [
+    {
+      id: 'dashboard',
+      label: 'Inicio',
+      description: 'Resumen de tu salud',
+      icon: Home,
+    },
+    {
+      id: 'prescriptions',
+      label: 'Mis recetas',
+      description: 'Tratamientos indicados',
+      icon: ClipboardList,
+    },
+    {
+      id: 'schedules',
+      label: 'Mis horarios',
+      description: 'Tomas y recordatorios',
+      icon: Clock3,
+    },
+    {
+      id: 'assistant',
+      label: 'Asistente IA',
+      description: 'Orientación de salud',
+      icon: Bot,
+    },
+  ];
 
   const patientPageTitles: Record<PatientPage, string> = {
     dashboard: 'Inicio',
@@ -120,50 +149,16 @@ function PatientLayout({ user, onLogout }: Props) {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <div className="brand">
-          <img
-            src="/assets/logo/smartpharmacy-logo.png"
-            alt="SmartPharmacy"
-          />
-
-          <h2>Paciente</h2>
-        </div>
-
-        <nav>
-          <button
-            className={currentPage === 'dashboard' ? 'active' : ''}
-            onClick={() => setCurrentPage('dashboard')}
-          >
-            <Home className="nav-icon" />
-            Inicio
-          </button>
-
-          <button
-            className={currentPage === 'prescriptions' ? 'active' : ''}
-            onClick={() => setCurrentPage('prescriptions')}
-          >
-            <ClipboardList className="nav-icon" />
-            Mis recetas
-          </button>
-
-          <button
-            className={currentPage === 'schedules' ? 'active' : ''}
-            onClick={() => setCurrentPage('schedules')}
-          >
-            <Clock3 className="nav-icon" />
-            Mis horarios
-          </button>
-
-          <button
-            className={currentPage === 'assistant' ? 'active' : ''}
-            onClick={() => setCurrentPage('assistant')}
-          >
-            <Bot className="nav-icon" />
-            Asistente IA
-          </button>
-        </nav>
-      </aside>
+      <PortalSidebar
+        user={user}
+        title="Mi Salud"
+        eyebrow="SmartPharmacy"
+        roleLabel="Paciente"
+        currentPage={currentPage}
+        items={patientSidebarItems}
+        variant="patient"
+        onNavigate={setCurrentPage}
+      />
 
       <main className="main-content">
         <Navbar

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { User } from '../shared/types';
 
 import Navbar from '../shared/components/Navbar';
+import PortalSidebar, { type PortalSidebarItem, } from '../shared/components/PortalSidebar';
 import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import DoctorDashboardPage from '../modules/doctor/DoctorDashboardPage';
@@ -25,6 +26,40 @@ type DoctorPage =
   | 'record'
   | 'prescriptions'
   | 'assistant';
+
+  const doctorSidebarItems:
+  PortalSidebarItem<DoctorPage>[] = [
+    {
+      id: 'dashboard',
+      label: 'Inicio',
+      description: 'Resumen de actividad',
+      icon: Home,
+    },
+    {
+      id: 'registerPatient',
+      label: 'Registrar paciente',
+      description: 'Alta de nuevos pacientes',
+      icon: UserPlus,
+    },
+    {
+      id: 'record',
+      label: 'Expediente clínico',
+      description: 'Historial y seguimiento',
+      icon: FileText,
+    },
+    {
+      id: 'prescriptions',
+      label: 'Recetas',
+      description: 'Prescripción médica',
+      icon: ClipboardList,
+    },
+    {
+      id: 'assistant',
+      label: 'Asistente IA',
+      description: 'Apoyo clínico inteligente',
+      icon: Bot,
+    },
+  ];
 
 const doctorPageTitles: Record<DoctorPage, string> = {
   dashboard: 'Inicio',
@@ -85,88 +120,16 @@ function DoctorLayout({ user, onLogout }: Props) {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <div className="brand">
-          <img
-            src="/assets/logo/smartpharmacy-logo.png"
-            alt="SmartPharmacy"
-          />
-
-          <h2>Panel Médico</h2>
-        </div>
-
-        <nav>
-          <button
-            className={
-              currentPage === 'dashboard'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('dashboard')
-            }
-          >
-            <Home className="nav-icon" />
-            Inicio
-          </button>
-
-          <button
-            className={
-              currentPage === 'registerPatient'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('registerPatient')
-            }
-          >
-            <UserPlus className="nav-icon" />
-            Registrar paciente
-          </button>
-
-          <button
-            className={
-              currentPage === 'record'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('record')
-            }
-          >
-            <FileText className="nav-icon" />
-            Expediente clínico
-          </button>
-
-          <button
-            className={
-              currentPage === 'prescriptions'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('prescriptions')
-            }
-          >
-            <ClipboardList className="nav-icon" />
-            Recetas
-          </button>
-
-          <button
-            className={
-              currentPage === 'assistant'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('assistant')
-            }
-          >
-            <Bot className="nav-icon" />
-            Asistente IA
-          </button>
-        </nav>
-      </aside>
+      <PortalSidebar
+        user={user}
+        title="Panel Médico"
+        eyebrow="SmartPharmacy"
+        roleLabel="Médico"
+        currentPage={currentPage}
+        items={doctorSidebarItems}
+        variant="doctor"
+        onNavigate={setCurrentPage}
+      />
 
       <main className="main-content">
         <Navbar

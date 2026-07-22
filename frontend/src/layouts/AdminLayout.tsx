@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { User } from '../shared/types';
 
 import Navbar from '../shared/components/Navbar';
+import PortalSidebar, { type PortalSidebarItem,} from '../shared/components/PortalSidebar';
 import useDocumentTitle from '../shared/hooks/useDocumentTitle';
 
 import DoctorDashboardPage from '../modules/doctor/DoctorDashboardPage';
@@ -36,6 +37,58 @@ type AdminPage =
   | 'inventory'
   | 'roles'
   | 'assistant';
+
+  const adminSidebarItems:
+  PortalSidebarItem<AdminPage>[] = [
+    {
+      id: 'dashboard',
+      label: 'Inicio',
+      description: 'Resumen general',
+      icon: Home,
+    },
+    {
+      id: 'registerPatient',
+      label: 'Registrar paciente',
+      description: 'Alta de nuevos pacientes',
+      icon: UserPlus,
+    },
+    {
+      id: 'record',
+      label: 'Expediente clínico',
+      description: 'Consulta de historiales',
+      icon: FileText,
+    },
+    {
+      id: 'prescriptions',
+      label: 'Recetas',
+      description: 'Prescripción y seguimiento',
+      icon: ClipboardList,
+    },
+    {
+      id: 'medicines',
+      label: 'Medicamentos',
+      description: 'Catálogo farmacéutico',
+      icon: Pill,
+    },
+    {
+      id: 'inventory',
+      label: 'Inventario',
+      description: 'Existencias y lotes',
+      icon: Boxes,
+    },
+    {
+      id: 'roles',
+      label: 'Usuarios y roles',
+      description: 'Accesos y permisos',
+      icon: ShieldCheck,
+    },
+    {
+      id: 'assistant',
+      label: 'Asistente IA',
+      description: 'Apoyo inteligente',
+      icon: Bot,
+    },
+  ];
 
 const adminPageTitles: Record<AdminPage, string> = {
   dashboard: 'Inicio',
@@ -108,130 +161,16 @@ function AdminLayout({ user, onLogout }: Props) {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <div className="brand">
-          <img
-            src="/assets/logo/smartpharmacy-logo.png"
-            alt="SmartPharmacy"
-          />
-
-          <h2>Administrador Sistema</h2>
-        </div>
-
-        <nav>
-          <button
-            className={
-              currentPage === 'dashboard'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('dashboard')
-            }
-          >
-            <Home className="nav-icon" />
-            Inicio
-          </button>
-
-          <button
-            className={
-              currentPage === 'registerPatient'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('registerPatient')
-            }
-          >
-            <UserPlus className="nav-icon" />
-            Registrar paciente
-          </button>
-
-          <button
-            className={
-              currentPage === 'record'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('record')
-            }
-          >
-            <FileText className="nav-icon" />
-            Expediente clínico
-          </button>
-
-          <button
-            className={
-              currentPage === 'prescriptions'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('prescriptions')
-            }
-          >
-            <ClipboardList className="nav-icon" />
-            Recetas
-          </button>
-
-          <button
-            className={
-              currentPage === 'medicines'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('medicines')
-            }
-          >
-            <Pill className="nav-icon" />
-            Medicamentos
-          </button>
-
-          <button
-            className={
-              currentPage === 'inventory'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('inventory')
-            }
-          >
-            <Boxes className="nav-icon" />
-            Inventario
-          </button>
-
-          <button
-            className={
-              currentPage === 'roles'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('roles')
-            }
-          >
-            <ShieldCheck className="nav-icon" />
-            Usuarios y roles
-          </button>
-
-          <button
-            className={
-              currentPage === 'assistant'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('assistant')
-            }
-          >
-            <Bot className="nav-icon" />
-            Asistente IA
-          </button>
-        </nav>
-      </aside>
+      <PortalSidebar
+        user={user}
+        title="Superadministrador"
+        eyebrow="SmartPharmacy"
+        roleLabel="Superadministrador"
+        currentPage={currentPage}
+        items={adminSidebarItems}
+        variant="admin"
+        onNavigate={setCurrentPage}
+      />
 
       <main className="main-content">
         <Navbar
