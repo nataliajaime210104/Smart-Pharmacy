@@ -10,9 +10,11 @@ import InventoryPage from '../modules/pharmacy/InventoryPage';
 import DashboardPage from '../modules/pharmacy/DashboardPage';
 
 import {
+  Activity,
+  Boxes,
+  ChevronRight,
   Home,
   Pill,
-  Boxes,
 } from 'lucide-react';
 
 type PharmacyPage =
@@ -43,7 +45,14 @@ function PharmacyLayout({ user, onLogout }: Props) {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <DashboardPage user={user} />;
+        return (
+          <DashboardPage
+            user={user}
+            onNavigate={(page) =>
+              setCurrentPage(page)
+            }
+          />
+        );
 
       case 'medicines':
         return <MedicinesPage />;
@@ -62,18 +71,30 @@ function PharmacyLayout({ user, onLogout }: Props) {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <div className="brand">
-          <img
-            src="/assets/logo/smartpharmacy-logo.png"
-            alt="SmartPharmacy"
-          />
+      <aside className="sidebar pharmacy-sidebar">
+        <div className="brand pharmacy-sidebar-brand">
+          <div className="pharmacy-sidebar-logo">
+            <img
+              src="/assets/logo/smartpharmacy-logo.png"
+              alt="SmartPharmacy"
+            />
+          </div>
 
-          <h2>Farmacia</h2>
+          <div className="pharmacy-sidebar-brand-copy">
+            <span>SmartPharmacy</span>
+            <h2>Farmacia</h2>
+          </div>
         </div>
 
-        <nav>
+        <div className="pharmacy-sidebar-divider" />
+
+        <span className="pharmacy-sidebar-section-title">
+          Panel principal
+        </span>
+
+        <nav className="pharmacy-sidebar-nav">
           <button
+            type="button"
             className={
               currentPage === 'dashboard'
                 ? 'active'
@@ -83,11 +104,23 @@ function PharmacyLayout({ user, onLogout }: Props) {
               setCurrentPage('dashboard')
             }
           >
-            <Home className="nav-icon" />
-            Inicio
+            <span className="pharmacy-sidebar-nav-icon">
+              <Home size={20} />
+            </span>
+
+            <span className="pharmacy-sidebar-nav-copy">
+              <strong>Inicio</strong>
+              <small>Resumen operativo</small>
+            </span>
+
+            <ChevronRight
+              className="pharmacy-sidebar-nav-arrow"
+              size={17}
+            />
           </button>
 
           <button
+            type="button"
             className={
               currentPage === 'medicines'
                 ? 'active'
@@ -97,11 +130,23 @@ function PharmacyLayout({ user, onLogout }: Props) {
               setCurrentPage('medicines')
             }
           >
-            <Pill className="nav-icon" />
-            Medicamentos
+            <span className="pharmacy-sidebar-nav-icon">
+              <Pill size={20} />
+            </span>
+
+            <span className="pharmacy-sidebar-nav-copy">
+              <strong>Medicamentos</strong>
+              <small>Catálogo farmacéutico</small>
+            </span>
+
+            <ChevronRight
+              className="pharmacy-sidebar-nav-arrow"
+              size={17}
+            />
           </button>
 
           <button
+            type="button"
             className={
               currentPage === 'inventory'
                 ? 'active'
@@ -111,10 +156,53 @@ function PharmacyLayout({ user, onLogout }: Props) {
               setCurrentPage('inventory')
             }
           >
-            <Boxes className="nav-icon" />
-            Inventario
+            <span className="pharmacy-sidebar-nav-icon">
+              <Boxes size={20} />
+            </span>
+
+            <span className="pharmacy-sidebar-nav-copy">
+              <strong>Inventario</strong>
+              <small>Existencias y lotes</small>
+            </span>
+
+            <ChevronRight
+              className="pharmacy-sidebar-nav-arrow"
+              size={17}
+            />
           </button>
         </nav>
+
+        <div className="pharmacy-sidebar-spacer" />
+
+        <div className="pharmacy-sidebar-status">
+          <span className="pharmacy-sidebar-status-icon">
+            <Activity size={19} />
+          </span>
+
+          <div>
+            <strong>Sistema operativo</strong>
+            <span>
+              <i />
+              Servicios disponibles
+            </span>
+          </div>
+        </div>
+
+        <div className="pharmacy-sidebar-user">
+          <div className="pharmacy-sidebar-user-avatar">
+            {user.name
+              .split(' ')
+              .slice(0, 2)
+              .map((part) => part.charAt(0))
+              .join('')
+              .toUpperCase()}
+          </div>
+
+          <div>
+            <strong>{user.name}</strong>
+            <span>Administrador de farmacia</span>
+          </div>
+        </div>
       </aside>
 
       <main className="main-content">
