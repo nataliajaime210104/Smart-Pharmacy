@@ -11,6 +11,7 @@ import PatientRecordPage from '../modules/doctor/PatientRecordPage';
 import PrescriptionsPage from '../modules/doctor/PrescriptionsPage';
 import AiAssistantPage from '../modules/ai-assistant/AiAssistantPage';
 import RegisterPatientPage from '../modules/doctor/RegisterPatientPage';
+import MedicationHistoryPage from '../modules/doctor/MedicationHistoryPage';
 
 import {
   Home,
@@ -18,6 +19,7 @@ import {
   FileText,
   ClipboardList,
   Bot,
+  ChartNoAxesCombined,
 } from 'lucide-react';
 
 type DoctorPage =
@@ -25,6 +27,7 @@ type DoctorPage =
   | 'registerPatient'
   | 'record'
   | 'prescriptions'
+  | 'medicationHistory'
   | 'assistant';
 
   const doctorSidebarItems:
@@ -54,6 +57,12 @@ type DoctorPage =
       icon: ClipboardList,
     },
     {
+      id: 'medicationHistory',
+      label: 'Historial de medicamentos',
+      description: 'Adherencia terapéutica',
+      icon: ChartNoAxesCombined,
+    },
+    {
       id: 'assistant',
       label: 'Asistente IA',
       description: 'Apoyo clínico inteligente',
@@ -66,6 +75,7 @@ const doctorPageTitles: Record<DoctorPage, string> = {
   registerPatient: 'Registrar paciente',
   record: 'Expediente clínico',
   prescriptions: 'Recetas',
+  medicationHistory: 'Historial de medicamentos',
   assistant: 'Asistente IA',
 };
 
@@ -104,6 +114,9 @@ function DoctorLayout({ user, onLogout }: Props) {
             currentUser={user}
           />
         );
+
+      case 'medicationHistory':
+        return <MedicationHistoryPage currentUser={user} />;
 
       case 'assistant':
         return <AiAssistantPage />;

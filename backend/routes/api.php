@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\MedicineController;
 use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\PrescriptionController;
 use App\Http\Controllers\Api\AiAssistantController;
+use App\Http\Controllers\Api\MedicationHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -52,6 +53,9 @@ Route::post('/prescriptions/{prescription}/sign', [PrescriptionController::class
 Route::post('/prescriptions/{prescription}/dispense', [PrescriptionController::class, 'dispense']);
 Route::get('/prescriptions/{prescription}/pdf', [PrescriptionController::class, 'pdf']);
 Route::get('/patient/prescriptions/{userId}', [PatientController::class, 'myPrescriptions']);
+
+Route::get('/doctor/medication-history/patients/{doctorId}', [MedicationHistoryController::class, 'patients']);
+Route::get('/doctor/medication-history', [MedicationHistoryController::class, 'index']);
 
 Route::post('/ai-assistant/ask', [AiAssistantController::class, 'ask']);    
 Route::post('/patient/assistant',[AiAssistantController::class, 'patientAsk']);

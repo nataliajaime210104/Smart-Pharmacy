@@ -1,0 +1,522 @@
+.medication-history-page {
+  display: grid;
+  gap: 24px;
+}
+
+.medication-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 35%),
+    linear-gradient(135deg, #ffffff, #f7fbff);
+  border: 1px solid #dce8f5;
+  box-shadow: var(--shadow-sm);
+}
+
+.medication-history-eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.medication-history-header h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -0.04em;
+}
+
+.medication-history-header p {
+  max-width: 760px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.medication-history-header-icon {
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  box-shadow: 0 16px 30px rgba(37, 99, 235, 0.24);
+}
+
+.medication-history-filters {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.6fr) repeat(2, minmax(160px, 0.8fr)) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.medication-history-filter-field {
+  display: grid;
+  gap: 8px;
+}
+
+.medication-history-filter-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.medication-history-filter-field select,
+.medication-history-filter-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 13px;
+  color: var(--text);
+  background: #f8fafc;
+  border: 1px solid #dbe5ef;
+  border-radius: 12px;
+  outline: none;
+}
+
+.medication-history-filter-field select:focus,
+.medication-history-filter-field input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.medication-history-search-button {
+  min-height: 46px;
+  padding: 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 12px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.medication-history-search-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  box-shadow: none;
+}
+
+.medication-history-page .spin {
+  animation: medication-history-spin 0.9s linear infinite;
+}
+
+.medication-history-state {
+  min-height: 160px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--muted);
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 20px;
+}
+
+.medication-history-state strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.medication-history-patient-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.medication-history-patient-avatar {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 17px;
+  color: #1e40af;
+  background: #dbeafe;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.medication-history-patient-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.medication-history-patient-card h2 {
+  margin: 3px 0 2px;
+  color: var(--text);
+}
+
+.medication-history-patient-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.medication-history-period-badge {
+  margin-left: auto;
+  padding: 10px 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1e40af;
+  background: #eff6ff;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.medication-history-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.medication-history-summary-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.medication-history-summary-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+}
+
+.medication-history-summary-card.primary .medication-history-summary-icon {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.medication-history-summary-card.success .medication-history-summary-icon {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.medication-history-summary-card.danger .medication-history-summary-icon {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.medication-history-summary-card.warning .medication-history-summary-icon {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.medication-history-summary-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.medication-history-summary-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+
+.medication-history-summary-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.medication-history-charts-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.75fr);
+  gap: 20px;
+}
+
+.medication-history-panel {
+  min-width: 0;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.medication-history-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.medication-history-panel-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 21px;
+}
+
+.medication-history-panel-heading p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.medication-history-chart {
+  width: 100%;
+  height: 320px;
+}
+
+.medication-history-donut-wrap {
+  min-height: 320px;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(150px, 0.8fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.medication-history-donut {
+  position: relative;
+  height: 250px;
+}
+
+.medication-history-donut-center {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.medication-history-donut-center strong {
+  display: block;
+  color: var(--text);
+  font-size: 28px;
+}
+
+.medication-history-donut-center span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.medication-history-legend {
+  display: grid;
+  gap: 10px;
+}
+
+.medication-history-legend > div {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.medication-history-legend > div > span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.medication-history-legend p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.medication-history-legend strong {
+  color: var(--text);
+}
+
+.medication-history-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e8eef5;
+  border-radius: 16px;
+}
+
+.medication-history-table {
+  min-width: 780px;
+}
+
+.medication-history-table th,
+.medication-history-table td {
+  padding: 14px 16px;
+  vertical-align: middle;
+}
+
+.medication-history-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.medication-history-medicine-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.medication-history-medicine-cell svg {
+  color: #2563eb;
+}
+
+.medication-history-medicine-cell strong,
+.medication-history-medicine-cell span {
+  display: block;
+}
+
+.medication-history-medicine-cell span,
+.medication-history-table-secondary {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.medication-history-progress-cell {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.medication-history-progress-cell > div {
+  width: 90px;
+  height: 8px;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: 999px;
+}
+
+.medication-history-progress-cell > div span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #15803d);
+  border-radius: inherit;
+}
+
+.medication-history-progress-cell strong {
+  font-size: 13px;
+}
+
+.medication-history-table-secondary {
+  display: block;
+}
+
+.medication-history-status {
+  display: inline-flex;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.medication-history-status.tomado {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.medication-history-status.omitido {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.medication-history-status.pendiente {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+@keyframes medication-history-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .medication-history-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .medication-history-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .medication-history-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .medication-history-header {
+    align-items: flex-start;
+    padding: 22px;
+  }
+
+  .medication-history-header-icon {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+  }
+
+  .medication-history-filters,
+  .medication-history-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .medication-history-patient-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .medication-history-period-badge {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .medication-history-donut-wrap {
+    grid-template-columns: 1fr;
+  }
+}
