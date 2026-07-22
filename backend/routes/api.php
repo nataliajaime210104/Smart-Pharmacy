@@ -24,11 +24,7 @@ Route::get('/patients', [PatientController::class, 'index']);
 Route::post('/patients', [PatientController::class, 'store']);
 Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'updateClinicalData']);
 Route::get( '/patient/schedules/{userId}',[PatientController::class, 'mySchedules']);
-Route::patch(
-    '/patient/schedules/{id}/taken',
-    [PatientController::class, 'markScheduleAsTaken']
-);
-
+Route::patch('/patient/schedules/{id}/taken',[PatientController::class, 'markScheduleAsTaken']);
 
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
@@ -38,6 +34,7 @@ Route::patch('/users/{user}/deactivate', [UserController::class, 'deactivate']);
 Route::get('/profile-photos/{filename}', [UserController::class, 'profilePhoto']);
 
 Route::get('/medicines', [MedicineController::class, 'index']);
+Route::get('/medicines/catalogs', [MedicineController::class, 'catalogs']);
 Route::post('/medicines', [MedicineController::class, 'store']);
 Route::put('/medicines/{medicine}', [MedicineController::class, 'update']);
 Route::patch('/medicines/{medicine}/deactivate', [MedicineController::class, 'deactivate']);

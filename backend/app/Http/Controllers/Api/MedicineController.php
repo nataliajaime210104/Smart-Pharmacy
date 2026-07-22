@@ -22,6 +22,115 @@ class MedicineController extends Controller
             'data' => $medicines,
         ]);
     }
+    public function catalogs()
+    {
+        $presentations = collect([
+            'Tabletas',
+            'Cápsulas',
+            'Jarabe',
+            'Suspensión',
+            'Solución oral',
+            'Gotas',
+            'Crema',
+            'Ungüento',
+            'Gel',
+            'Ampolletas',
+            'Solución inyectable',
+            'Aerosol',
+            'Inhalador',
+            'Supositorios',
+            'Parche',
+            'Polvo',
+            'Sobres',
+        ])
+            ->merge(
+                Medicine::query()
+                    ->whereNotNull('presentation')
+                    ->where('presentation', '<>', '')
+                    ->pluck('presentation')
+            )
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique(fn ($value) => mb_strtolower($value))
+            ->sort(fn ($first, $second) => strnatcasecmp($first, $second))
+            ->values();
+
+        $concentrations = collect([
+            '1 mg',
+            '2 mg',
+            '5 mg',
+            '10 mg',
+            '20 mg',
+            '25 mg',
+            '50 mg',
+            '100 mg',
+            '200 mg',
+            '250 mg',
+            '400 mg',
+            '500 mg',
+            '600 mg',
+            '650 mg',
+            '750 mg',
+            '1 g',
+            '5 mg/ml',
+            '10 mg/ml',
+            '20 mg/ml',
+            '50 mg/ml',
+            '100 mg/5 ml',
+            '125 mg/5 ml',
+            '250 mg/5 ml',
+            '500 mg/5 ml',
+            '1%',
+            '2%',
+            '5%',
+        ])
+            ->merge(
+                Medicine::query()
+                    ->whereNotNull('concentration')
+                    ->where('concentration', '<>', '')
+                    ->pluck('concentration')
+            )
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique(fn ($value) => mb_strtolower($value))
+            ->sort(fn ($first, $second) => strnatcasecmp($first, $second))
+            ->values();
+
+        $units = collect([
+            'Pieza',
+            'Caja',
+            'Frasco',
+            'Blíster',
+            'Tubo',
+            'Ampolleta',
+            'Sobre',
+            'Envase',
+            'Bolsa',
+            'Vial',
+            'Lata',
+            'Inhalador',
+        ])
+            ->merge(
+                Medicine::query()
+                    ->whereNotNull('unit')
+                    ->where('unit', '<>', '')
+                    ->pluck('unit')
+            )
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->unique(fn ($value) => mb_strtolower($value))
+            ->sort(fn ($first, $second) => strnatcasecmp($first, $second))
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'presentations' => $presentations,
+                'concentrations' => $concentrations,
+                'units' => $units,
+            ],
+        ]);
+    }
 
     public function store(Request $request)
     {
