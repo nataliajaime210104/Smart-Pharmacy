@@ -5,16 +5,22 @@ import type { User } from '../shared/types';
 import Navbar from '../shared/components/Navbar';
 import UserAvatar from '../shared/components/UserAvatar';
 
+import MedicalAssistantPage from '../modules/patient/MedicalAssistantPage';
 import MyPrescriptionsPage from '../modules/patient/MyPrescriptionsPage';
+import MySchedulesPage from '../modules/patient/MySchedulesPage';
 
 import {
-  Home,
+  Bot,
   ClipboardList,
+  Clock3,
+  Home,
 } from 'lucide-react';
 
 type PatientPage =
   | 'dashboard'
-  | 'prescriptions';
+  | 'prescriptions'
+  | 'schedules'
+  | 'assistant';
 
 interface Props {
   user: User;
@@ -40,9 +46,9 @@ function PatientLayout({ user, onLogout }: Props) {
                 <h1>Bienvenido, {user.name}</h1>
 
                 <p>
-                  Desde este portal podrás consultar tus recetas médicas
-                  emitidas por tu médico, revisar medicamentos indicados y
-                  abrir tu PDF cuando la receta esté firmada.
+                  Desde este portal podrás consultar tus recetas médicas,
+                  revisar tus horarios de medicamentos y usar el asistente
+                  de salud con la información registrada en tu expediente.
                 </p>
 
                 <div className="welcome-profile-meta">
@@ -71,6 +77,13 @@ function PatientLayout({ user, onLogout }: Props) {
                   <strong>Consulta</strong>
                 </div>
               </div>
+
+              <div className="patient-summary-card">
+                <div>
+                  <span>Horarios de medicamentos</span>
+                  <strong>Seguimiento</strong>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -82,16 +95,14 @@ function PatientLayout({ user, onLogout }: Props) {
           />
         );
 
-      default:
-        return (
-          <div className="page-card">
-            <h1>Bienvenido</h1>
+      case 'schedules':
+        return <MySchedulesPage user={user} />;
 
-            <p>
-              Hola <strong>{user.name}</strong>.
-            </p>
-          </div>
-        );
+      case 'assistant':
+        return <MedicalAssistantPage user={user} />;
+
+      default:
+        return null;
     }
   };
 
@@ -109,31 +120,35 @@ function PatientLayout({ user, onLogout }: Props) {
 
         <nav>
           <button
-            className={
-              currentPage === 'dashboard'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('dashboard')
-            }
+            className={currentPage === 'dashboard' ? 'active' : ''}
+            onClick={() => setCurrentPage('dashboard')}
           >
             <Home className="nav-icon" />
             Inicio
           </button>
 
           <button
-            className={
-              currentPage === 'prescriptions'
-                ? 'active'
-                : ''
-            }
-            onClick={() =>
-              setCurrentPage('prescriptions')
-            }
+            className={currentPage === 'prescriptions' ? 'active' : ''}
+            onClick={() => setCurrentPage('prescriptions')}
           >
             <ClipboardList className="nav-icon" />
             Mis recetas
+          </button>
+
+          <button
+            className={currentPage === 'schedules' ? 'active' : ''}
+            onClick={() => setCurrentPage('schedules')}
+          >
+            <Clock3 className="nav-icon" />
+            Mis horarios
+          </button>
+
+          <button
+            className={currentPage === 'assistant' ? 'active' : ''}
+            onClick={() => setCurrentPage('assistant')}
+          >
+            <Bot className="nav-icon" />
+            Asistente IA
           </button>
         </nav>
       </aside>

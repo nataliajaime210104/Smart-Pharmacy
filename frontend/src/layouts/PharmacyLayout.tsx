@@ -6,6 +6,7 @@ import Navbar from '../shared/components/Navbar';
 
 import MedicinesPage from '../modules/pharmacy/MedicinesPage';
 import InventoryPage from '../modules/pharmacy/InventoryPage';
+import DashboardPage from '../modules/pharmacy/DashboardPage';
 
 import {
   Home,
@@ -31,20 +32,7 @@ function PharmacyLayout({ user, onLogout }: Props) {
     switch (currentPage) {
 
       case 'dashboard':
-        return (
-          <div className="page-card">
-            <h1>Panel de Farmacia</h1>
-
-            <p>
-              Bienvenido <strong>{user.name}</strong>.
-            </p>
-
-            <p>
-              Desde este módulo podrás administrar los
-              medicamentos y el inventario de la farmacia.
-            </p>
-          </div>
-        );
+        return <DashboardPage user={user} />;
 
       case 'medicines':
         return <MedicinesPage />;

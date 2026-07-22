@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use App\Services\MedicationScheduleGenerator;
 
 class PrescriptionController extends Controller
 {
@@ -63,6 +64,7 @@ class PrescriptionController extends Controller
             'items.*.dosage' => ['nullable', 'string', 'max:255'],
             'items.*.frequency' => ['nullable', 'string', 'max:255'],
             'items.*.duration' => ['nullable', 'string', 'max:255'],
+            'items.*.startTime' => ['nullable', 'date_format:H:i'],
             'items.*.instructions' => ['nullable', 'string'],
         ]);
 
@@ -86,19 +88,28 @@ class PrescriptionController extends Controller
                 'status' => 'Borrador',
             ]);
 
-            foreach ($validated['items'] as $item) {
-                PrescriptionItem::create([
-                    'prescription_id' => $prescription->id,
-                    'medicine_id' => $item['medicineId'],
-                    'quantity' => $item['quantity'],
-                    'dosage' => $item['dosage'] ?? null,
-                    'frequency' => $item['frequency'] ?? null,
-                    'duration' => $item['duration'] ?? null,
-                    'instructions' => $item['instructions'] ?? null,
-                ]);
-            }
+            $generator = new MedicationScheduleGenerator();
 
+                foreach ($validated['items'] as $item) {
+
+                    $prescriptionItem = PrescriptionItem::create([
+                        'prescription_id' => $prescription->id,
+                        'medicine_id' => $item['medicineId'],
+                        'quantity' => $item['quantity'],
+                        'dosage' => $item['dosage'] ?? null,
+                        'frequency' => $item['frequency'] ?? null,
+                        'duration' => $item['duration'] ?? null,
+                        'start_time' => $item['startTime'] ?? null,
+                        'instructions' => $item['instructions'] ?? null,
+                    ]);
+
+                    $generator->generate(
+                        $prescription,
+                        $prescriptionItem
+                    );
+                }
             return $prescription;
+            
         });
 
         $prescription->load([

@@ -130,6 +130,44 @@ class AiAssistantController extends Controller
         }
     }
 
+    public function patientAsk(Request $request)
+    {
+        $validated = $request->validate([
+            'question' => ['required', 'string', 'min:3', 'max:1200'],
+            'userId' => ['required', 'integer'],
+        ]);
+
+        $patient = Patient::where('user_id', $validated['userId'])->first();
+
+        if (!$patient) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Paciente no encontrado.',
+            ], 404);
+        }
+
+        $request->merge([
+            'question' => trim($validated['question']),
+            'patientId' => $patient->id,
+        ]);
+
+        $assistantResponse = $this->ask($request);
+        $responseData = $assistantResponse->getData(true);
+
+        if (!$assistantResponse->isSuccessful()) {
+            return response()->json(
+                $responseData,
+                $assistantResponse->getStatusCode()
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'answer' => data_get($responseData, 'data.answer'),
+            'source' => data_get($responseData, 'data.source'),
+        ]);
+    }
+
     private function getSafetyResponse(string $question): ?string
     {
         $normalizedQuestion = Str::lower($question);

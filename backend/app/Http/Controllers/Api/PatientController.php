@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\MedicationSchedule;
 use App\Models\Patient;
 use App\Models\Prescription;
 use App\Models\User;
@@ -200,6 +201,62 @@ class PatientController extends Controller
         return response()->json([
             'success' => true,
             'data' => $prescriptions,
+        ]);
+    }
+
+    public function mySchedules($userId)
+    {
+        $patient = Patient::where('user_id', $userId)->first();
+
+        if (!$patient) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Paciente no encontrado',
+                'data' => [],
+            ], 404);
+        }
+
+        $schedules = MedicationSchedule::where('patient_id', $patient->id)
+            ->with('prescriptionItem.medicine')
+            ->orderBy('scheduled_at')
+            ->get()
+            ->map(function (MedicationSchedule $schedule) {
+                return [
+                    'id' => $schedule->id,
+                    'medicineName' => $schedule->prescriptionItem?->medicine?->name,
+                    'dosage' => $schedule->prescriptionItem?->dosage,
+                    'frequency' => $schedule->prescriptionItem?->frequency,
+                    'scheduledAt' => $schedule->scheduled_at?->format('Y-m-d H:i:s'),
+                    'status' => $schedule->status,
+                    'takenAt' => $schedule->taken_at?->format('Y-m-d H:i:s'),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $schedules,
+        ]);
+    }
+
+    public function markScheduleAsTaken($id)
+    {
+        $schedule = MedicationSchedule::find($id);
+
+        if (!$schedule) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Horario no encontrado.',
+            ], 404);
+        }
+
+        $schedule->update([
+            'status' => 'Tomado',
+            'taken_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Medicamento marcado como tomado.',
         ]);
     }
 

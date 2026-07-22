@@ -50,7 +50,9 @@ const emptyItem: PrescriptionItemFormData = {
   dosage: '',
   frequency: '',
   duration: '',
+  startTime:"",
   instructions: '',
+  
 };
 
 function createEmptyForm(doctorId: number): PrescriptionFormData {
@@ -686,37 +688,75 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
                         />
                       </div>
 
-                      <div className="form-group">
-                        <label>Frecuencia</label>
-                        <input
-                          type="text"
-                          placeholder="Ejemplo: Cada 8 horas"
-                          value={item.frequency}
-                          onChange={(event) =>
-                            handleItemChange(
-                              index,
-                              'frequency',
-                              event.target.value
-                            )
-                          }
-                        />
-                      </div>
+                       <div className="form-group">
+                          <label>Frecuencia</label>
 
-                      <div className="form-group">
-                        <label>Duración</label>
-                        <input
-                          type="text"
-                          placeholder="Ejemplo: 5 días"
-                          value={item.duration}
-                          onChange={(event) =>
-                            handleItemChange(
-                              index,
-                              'duration',
-                              event.target.value
-                            )
-                          }
-                        />
-                      </div>
+                          <select
+                            value={item.frequency}
+                            onChange={(event) =>
+                              handleItemChange(
+                                index,
+                                'frequency',
+                                event.target.value
+                              )
+                            }
+                          >
+                            <option value="">Seleccione una frecuencia</option>
+
+                            <option value="Cada 6 horas">Cada 6 horas</option>
+
+                            <option value="Cada 8 horas">Cada 8 horas</option>
+
+                            <option value="Cada 12 horas">Cada 12 horas</option>
+
+                            <option value="Cada 24 horas">Cada 24 horas</option>
+                          </select>
+                        </div>
+
+                          <div className="form-group">
+                            <label>Duración</label>
+
+                            <select
+                              value={item.duration}
+                              onChange={(event) =>
+                                handleItemChange(
+                                  index,
+                                  'duration',
+                                  event.target.value
+                                )
+                              }
+                            >
+                              <option value="">Seleccione duración</option>
+
+                              <option value="3 días">3 días</option>
+
+                              <option value="5 días">5 días</option>
+
+                              <option value="7 días">7 días</option>
+
+                              <option value="10 días">10 días</option>
+
+                              <option value="14 días">14 días</option>
+
+                              <option value="30 días">30 días</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Primera toma</label>
+
+                            <input
+                              type="time"
+                              value={item.startTime || ""}
+                              onChange={(event) =>
+                                handleItemChange(
+                                  index,
+                                  "startTime",
+                                  event.target.value
+                                )
+                              }
+                            />
+                          </div>
 
                       <div className="form-group">
                         <label>Inventario disponible</label>

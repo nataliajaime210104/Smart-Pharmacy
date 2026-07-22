@@ -10,6 +10,7 @@ import {
 
 import type { User as UserType } from '../../shared/types';
 import { register } from './services/auth.service';
+import logoPharmacy from '../../assets/logo_pharmacy.png';
 
 interface RegisterPageProps {
   onRegister: (user: UserType) => void;
@@ -69,8 +70,9 @@ function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
 
         <section className="register-hero">
             <img
-                src="/Smart-Pharmacy/frontend/src/assets/logo_pharmacy.png"
+                src={logoPharmacy}
                 
+                alt="SmartPharmacy"
                 className="hero-image"
             />
           <div className="login-hero-badge">
