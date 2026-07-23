@@ -188,11 +188,6 @@ function LoginPage({ onLogin,  onShowRegister, }: LoginPageProps) {
               {loading ? 'Validando...' : 'Iniciar sesión'}
               <ArrowRight size={18} />
             </button>
-
-            <div className="login-demo-note">
-              <ShieldCheck size={17} />
-              <span>Maquetado HU-01 conectado a Laravel y MySQL</span>
-            </div>
           </form>
         </section>
       </div>
