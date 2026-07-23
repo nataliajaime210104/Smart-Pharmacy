@@ -502,15 +502,6 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
           <div className="page-icon">
             <FileText size={28} />
           </div>
-
-          <div>
-            <h1>Recetas Electrónicas</h1>
-            <p className="page-description">
-              HU-03, HU-04 y HU-05: generación de recetas electrónicas,
-              firma digital con trazo manual, PDF y verificación de inventario
-              antes de emitir la receta.
-            </p>
-          </div>
         </div>
 
         <button type="button" onClick={openCreateForm}>

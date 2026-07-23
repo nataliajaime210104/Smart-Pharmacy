@@ -176,14 +176,6 @@ function PatientRecordPage() {
         <div className="page-icon">
           <FileHeart size={28} />
         </div>
-
-        <div>
-          <h1>Expediente Clínico Digital</h1>
-          <p className="page-description">
-            HU-02: Consulta integral del expediente clínico, historial de recetas,
-            medicamentos indicados, firma digital y códigos de verificación.
-          </p>
-        </div>
       </div>
 
       <div className="search-box icon-input">

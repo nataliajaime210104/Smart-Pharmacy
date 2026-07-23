@@ -181,15 +181,6 @@ function AiAssistantPage() {
         <div className="page-icon">
           <Bot size={28} />
         </div>
-
-        <div>
-          <h1>Asistente IA</h1>
-          <p className="page-description">
-            HU-14: Asistente virtual conectado con Gemini API para resolver dudas
-            generales sobre recetas, medicamentos indicados y horarios, con reglas
-            de seguridad médica.
-          </p>
-        </div>
       </div>
 
       <div className="ai-safety-card">
