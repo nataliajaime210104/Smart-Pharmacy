@@ -176,6 +176,9 @@ function PatientRecordPage() {
         <div className="page-icon">
           <FileHeart size={28} />
         </div>
+        <div>
+          <h1>Recetas Electrónicas</h1>
+        </div>
       </div>
 
       <div className="search-box icon-input">

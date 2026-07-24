@@ -181,6 +181,9 @@ function AiAssistantPage() {
         <div className="page-icon">
           <Bot size={28} />
         </div>
+        <div>
+          <h1>Asistente IA</h1>
+        </div>
       </div>
 
       <div className="ai-safety-card">

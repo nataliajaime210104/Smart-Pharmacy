@@ -502,6 +502,9 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
           <div className="page-icon">
             <FileText size={28} />
           </div>
+          <div>
+            <h1>Recetas Electrónicas</h1>
+          </div>
         </div>
 
         <button type="button" onClick={openCreateForm}>
