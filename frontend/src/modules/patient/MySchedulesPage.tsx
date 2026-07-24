@@ -1,211 +1,259 @@
 import { useEffect, useState } from "react";
 import type { User } from "../../shared/types";
+
 import {
-  getMySchedules,
-  markScheduleAsTaken,
+    Calendar,
+    dateFnsLocalizer,
+} from "react-big-calendar";
+
+import "react-big-calendar/lib/css/react-big-calendar.css";
+
+import {
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+} from "date-fns";
+
+import { es } from "date-fns/locale";
+
+import {
+    getMySchedules,
+    markScheduleAsTaken,
 } from "./services/patient.service";
 
+import MedicationNotification from "./MedicationNotification";
 
 import "../../styles/my-schedules.css";
+const locales = {
+    es,
+};
+
+const localizer = dateFnsLocalizer({
+    format,
+    parse,
+    startOfWeek,
+    getDay,
+    locales,
+});
 
 interface Props {
-  user: User;
+    user: User;
 }
-import MedicationNotification from "./MedicationNotification";
 export default function MySchedulesPage({ user }: Props) {
-  const [schedules, setSchedules] = useState<any[]>([]);
 
-  async function loadSchedules() {
-    const response = await getMySchedules(user.id);
+    const [schedules, setSchedules] = useState<any[]>([]);
 
-    if (response.success) {
-      setSchedules(response.data);
-    }
-  }
+    const [selectedSchedule, setSelectedSchedule] =
+        useState<any>(null);
 
-  useEffect(() => {
-    loadSchedules();
-  }, []);
+    async function loadSchedules() {
 
-  async function handleTaken(id: number) {
-    await markScheduleAsTaken(id);
+        const response = await getMySchedules(user.id);
 
-    loadSchedules();
-  }
+        if (response.success) {
+            setSchedules(response.data);
+        }
 
-  const groupedSchedules = schedules.reduce(
-  (groups: Record<string, any[]>, schedule) => {
-    const date = new Date(schedule.scheduledAt);
-
-    const today = new Date();
-
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-
-    const scheduleDate = date.toDateString();
-
-    let key = date.toLocaleDateString("es-MX", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-    });
-
-    if (scheduleDate === today.toDateString()) {
-      key = "📅 Hoy";
-    } else if (scheduleDate === tomorrow.toDateString()) {
-      key = "📅 Mañana";
     }
 
-    if (!groups[key]) {
-      groups[key] = [];
+    useEffect(() => {
+
+        loadSchedules();
+
+    }, []);
+
+    async function handleTaken(id: number) {
+
+        await markScheduleAsTaken(id);
+
+        loadSchedules();
+
+        setSelectedSchedule(null);
+
     }
+    const events = schedules.map((schedule) => ({
 
-    groups[key].push(schedule);
+        id: schedule.id,
 
-    return groups;
-  },
-  {}
-);
+        title: `${schedule.medicineName}`,
 
- return (
-  <div className="page-card">
+        start: new Date(schedule.scheduledAt),
 
-    <h1>💊 Mis Horarios</h1>
+        end: new Date(
+            new Date(schedule.scheduledAt).getTime() +
+                30 * 60000
+        ),
 
-    <p>
-      Consulta tus medicamentos programados y registra cada toma.
-    </p>
+        resource: schedule,
 
-    {schedules.length === 0 && (
-      <p>No hay horarios registrados.</p>
-    )}
+    }));
+    const eventStyleGetter = (event: any) => {
 
-    <MedicationNotification
-        schedules={schedules}
-        onMarkTaken={handleTaken}
-    />
+        let background = "#facc15";
 
-    {Object.entries(groupedSchedules).map(([day, items]) => (
+        if (event.resource.status === "Tomado") {
 
-  <div key={day}>
+            background = "#22c55e";
 
-    <h2 className="day-title">
-      {day}
-    </h2>
+        }
 
-    {items.map((schedule: any) => {
+        if (event.resource.status === "Omitido") {
 
-      const date = new Date(schedule.scheduledAt);
+            background = "#ef4444";
 
-      const hour = date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+        }
 
-      let statusClass = "status-pending";
+        return {
 
-      if (schedule.status === "Tomado") {
-        statusClass = "status-done";
-      }
+            style: {
 
-      if (schedule.status === "Omitido") {
-        statusClass = "status-missed";
-      }
+                background,
 
-      return (
+                color: "#fff",
 
-     <div
-    key={schedule.id}
-    className={`schedule-card ${
-        schedule.status === "Pendiente"
-            ? "pending"
-            : schedule.status === "Tomado"
-            ? "done"
-            : "missed"
-    }`}
->       
-            
+                border: "none",
 
-          <div className="schedule-header">
+                borderRadius: "10px",
 
-            <h2>
-              💊 {schedule.medicineName}
-            </h2>
+                fontWeight: 600,
 
-            <span
-              className={`schedule-status ${statusClass}`}
-            >
-              {
-                    schedule.status === "Pendiente"
-                    ? "🟡 Pendiente"
-                    : schedule.status === "Tomado"
-                    ? "🟢 Tomado"
-                    : "🔴 Omitido"
-                    }
-                                </span>
+                padding: "3px",
 
-          </div>
+            },
 
-                            <>
-                    <div
-                        style={{
-                            fontSize:"42px",
-                            marginBottom:"10px"
-                        }}
-                    >
-                    🕗
-                    </div>
+        };
 
-                    <h1>{hour}</h1>
-                    </>
+    };
+return (
+    <div className="page-card">
 
-          <div className="schedule-info">
+        <h1>💊 Mis Horarios</h1>
 
-            <div className="info-box">
+        <p>
+            Consulta tus medicamentos programados y registra cada toma.
+        </p>
 
-              <span>Dosis</span>
+        <MedicationNotification
+            schedules={schedules}
+            onMarkTaken={handleTaken}
+        />
 
-              <strong>
-                {schedule.dosage}
-              </strong>
+        <div className="calendar-container">
 
-            </div>
-
-            <div className="info-box">
-
-              <span>Frecuencia</span>
-
-              <strong>
-                {schedule.frequency}
-              </strong>
-
-            </div>
-
-          </div>
-
-          {schedule.status === "Pendiente" && (
-
-            <button
-              className="schedule-button"
-              onClick={() =>
-                handleTaken(schedule.id)
-              }
-            >
-              ✓ Marcar como tomado
-            </button>
-
-          )}
+            <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                defaultView="month"
+                views={["month", "week", "day"]}
+                popup
+                style={{
+                    height: 700,
+                    marginTop: 20,
+                }}
+                eventPropGetter={eventStyleGetter}
+                onSelectEvent={(event: any) =>
+                    setSelectedSchedule(event.resource)
+                }
+                messages={{
+                    today: "Hoy",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    month: "Mes",
+                    week: "Semana",
+                    day: "Día",
+                    agenda: "Agenda",
+                    date: "Fecha",
+                    time: "Hora",
+                    event: "Medicamento",
+                    noEventsInRange:
+                        "No hay medicamentos programados."
+                }}
+            />
 
         </div>
 
-      );
+        {selectedSchedule && (
 
-    })}
+            <div className="schedule-modal-overlay">
 
-  </div>
+                <div className="schedule-modal">
 
-))}
+                    <h2>
+                        💊 {selectedSchedule.medicineName}
+                    </h2>
 
-  </div>
+                    <div className="modal-info">
+
+                        <p>
+
+                            <strong>Hora:</strong>{" "}
+
+                            {new Date(
+                                selectedSchedule.scheduledAt
+                            ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })}
+
+                        </p>
+
+                        <p>
+
+                            <strong>Dosis:</strong>{" "}
+
+                            {selectedSchedule.dosage}
+
+                        </p>
+
+                        <p>
+
+                            <strong>Frecuencia:</strong>{" "}
+
+                            {selectedSchedule.frequency}
+
+                        </p>
+
+                        <p>
+
+                            <strong>Estado:</strong>{" "}
+
+                            {selectedSchedule.status}
+
+                        </p>
+
+                    </div>
+
+                    {selectedSchedule.status === "Pendiente" && (
+
+                        <button
+                            className="schedule-button"
+                            onClick={() =>
+                                handleTaken(selectedSchedule.id)
+                            }
+                        >
+                            ✓ Marcar como tomado
+                        </button>
+
+                    )}
+
+                    <button
+                        className="schedule-close"
+                        onClick={() =>
+                            setSelectedSchedule(null)
+                        }
+                    >
+                        Cerrar
+                    </button>
+
+                </div>
+
+            </div>
+
+        )}
+
+    </div>
 );
 }

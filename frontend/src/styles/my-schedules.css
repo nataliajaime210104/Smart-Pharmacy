@@ -1,206 +1,210 @@
-.schedules-container{
-    display:flex;
-    flex-direction:column;
-    gap:28px;
-}
+/* ===========================
+   CALENDARIO
+=========================== */
 
-.day-title{
-    font-size:24px;
-    font-weight:700;
-    color:#ec4899;
-    margin:25px 0 5px;
-    border-left:5px solid #ec4899;
-    padding-left:12px;
-}
-
-.schedule-card{
+.calendar-container{
+    margin-top:30px;
     background:#fff;
     border-radius:20px;
-    padding:25px;
-    margin-top:15px;
+    padding:20px;
     box-shadow:0 10px 30px rgba(0,0,0,.08);
-    transition:.25s;
-    display:flex;
-    flex-direction:column;
-    gap:20px;
 }
 
-.schedule-card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 18px 35px rgba(0,0,0,.12);
+.rbc-calendar{
+    font-family:inherit;
 }
 
-.schedule-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.rbc-toolbar{
+    margin-bottom:25px;
 }
 
-.schedule-header h2{
-    margin:0;
-    color:#374151;
-    font-size:24px;
-}
-
-.schedule-time{
-    text-align:center;
-}
-
-.schedule-time h1{
-    margin:0;
-    font-size:58px;
-    font-weight:700;
+.rbc-toolbar button{
+    background:#fff;
+    border:1px solid #ec4899;
     color:#ec4899;
-}
-
-.schedule-time small{
-    display:block;
-    margin-top:5px;
-    color:#9ca3af;
-    font-size:15px;
-}
-
-.schedule-status{
-    padding:8px 18px;
-    border-radius:30px;
-    font-size:14px;
-    font-weight:700;
-}
-
-.status-pending{
-    background:#FFF8DB;
-    color:#B7791F;
-}
-
-.status-done{
-    background:#DCFCE7;
-    color:#166534;
-}
-
-.status-missed{
-    background:#FEE2E2;
-    color:#991B1B;
-}
-
-.schedule-info{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:18px;
-}
-
-.info-box{
-    background:#F9FAFB;
-    border-radius:14px;
-    padding:18px;
-    border:1px solid #E5E7EB;
-}
-
-.info-box span{
-    display:block;
-    color:#9CA3AF;
-    font-size:13px;
-    margin-bottom:6px;
-}
-
-.info-box strong{
-    color:#374151;
-    font-size:17px;
-}
-
-.schedule-button{
-    border:none;
-    border-radius:14px;
-    padding:14px;
-    background:#ec4899;
-    color:white;
+    border-radius:10px;
+    padding:8px 15px;
     cursor:pointer;
-    font-size:15px;
-    font-weight:600;
     transition:.2s;
 }
 
-.schedule-button:hover{
-    background:#db2777;
-    transform:scale(1.02);
+.rbc-toolbar button:hover{
+    background:#ec4899;
+    color:#fff;
 }
 
-.schedule-card.pending{
-    border-left:8px solid #FBC02D;
+.rbc-active{
+    background:#ec4899 !important;
+    color:#fff !important;
 }
 
-.schedule-card.done{
-    border-left:8px solid #22C55E;
+.rbc-toolbar-label{
+    font-size:22px;
+    font-weight:700;
+    color:#374151;
 }
 
-.schedule-card.missed{
-    border-left:8px solid #EF4444;
+.rbc-header{
+    background:#fdf2f8;
+    color:#ec4899;
+    font-weight:700;
+    padding:12px;
 }
 
-@media (max-width:768px){
-
-    .schedule-time h1{
-        font-size:42px;
-    }
-
-    .schedule-header{
-        flex-direction:column;
-        gap:15px;
-        align-items:flex-start;
-    }
-
+.rbc-date-cell{
+    padding:8px;
 }
 
+.rbc-today{
+    background:#fff7ed !important;
+}
 
+.rbc-event{
+    border-radius:8px !important;
+    padding:3px 6px !important;
+    font-size:13px;
+}
 
+.rbc-show-more{
+    color:#ec4899;
+    font-weight:600;
+}
 
+/* ===========================
+   MODAL
+=========================== */
 
+.schedule-modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
 
-.notification-card{
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
-    background:linear-gradient(
-        135deg,
-        #ec4899,
-        #f472b6
-    );
+    z-index:999;
+}
 
-    color:white;
+.schedule-modal{
+
+    width:420px;
+    max-width:92%;
+
+    background:#fff;
 
     border-radius:20px;
 
-    padding:25px;
+    padding:30px;
 
-    margin-bottom:30px;
-
-    box-shadow:0 10px 30px rgba(236,72,153,.30);
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
 
 }
 
-.notification-card h1{
+.schedule-modal h2{
 
-    font-size:52px;
+    margin-top:0;
 
-    margin:10px 0;
+    color:#ec4899;
+
+    text-align:center;
 
 }
 
-.notification-card h2{
+.modal-info{
+
+    margin:25px 0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.modal-info p{
 
     margin:0;
 
-}
-
-.notification-card h3{
-
-    margin-top:15px;
+    font-size:17px;
 
 }
 
-.notification-card.success{
+.schedule-button{
 
-    background:linear-gradient(
-        135deg,
-        #16a34a,
-        #22c55e
-    );
+    width:100%;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#ec4899;
+
+    color:#fff;
+
+    padding:14px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    margin-top:10px;
+
+}
+
+.schedule-button:hover{
+
+    background:#db2777;
+
+}
+
+.schedule-close{
+
+    width:100%;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#e5e7eb;
+
+    color:#374151;
+
+    padding:14px;
+
+    cursor:pointer;
+
+    margin-top:12px;
+
+}
+
+.schedule-close:hover{
+
+    background:#d1d5db;
+
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:768px){
+
+    .calendar-container{
+
+        padding:10px;
+
+    }
+
+    .rbc-toolbar{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
 
 }
