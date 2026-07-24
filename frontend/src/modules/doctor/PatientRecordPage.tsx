@@ -177,7 +177,7 @@ function PatientRecordPage() {
           <FileHeart size={28} />
         </div>
         <div>
-          <h1>Recetas Electrónicas</h1>
+          <h1>Expediente Clínico Digital</h1>
         </div>
       </div>
 
