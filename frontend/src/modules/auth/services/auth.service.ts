@@ -7,3 +7,12 @@ export function login(email: string, password: string) {
     password,
   });
 }
+
+export function register(data: {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}) {
+  return apiPost('/register', data);
+}

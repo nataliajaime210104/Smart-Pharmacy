@@ -30,11 +30,23 @@ function Layout({
 }: LayoutProps) {
   return (
     <div className="app-layout">
-      <Sidebar currentPage={currentPage} onNavigate={onNavigate} />
+
+      {/* Le pasamos el usuario */}
+      <Sidebar
+        currentPage={currentPage}
+        onNavigate={onNavigate}
+        user={user}
+      />
 
       <main className="main-content">
-        <Navbar onLogout={onLogout} user={user} />
-        <section className="page-content">{children}</section>
+        <Navbar
+          onLogout={onLogout}
+          user={user}
+        />
+
+        <section className="page-content">
+          {children}
+        </section>
       </main>
     </div>
   );

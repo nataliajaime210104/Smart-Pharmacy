@@ -199,6 +199,7 @@ export interface PrescriptionItemFormData {
   dosage: string;
   frequency: string;
   duration: string;
+  startTime:string;
   instructions: string;
 }
 

@@ -15,9 +15,10 @@ import { login } from './services/auth.service';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
+  onShowRegister: () => void;
 }
 
-function LoginPage({ onLogin }: LoginPageProps) {
+function LoginPage({ onLogin,  onShowRegister, }: LoginPageProps) {
   const [email, setEmail] = useState('natalia@hospital.com');
   const [password, setPassword] = useState('12345678');
   const [loading, setLoading] = useState(false);
@@ -163,7 +164,25 @@ function LoginPage({ onLogin }: LoginPageProps) {
               <button type="button" className="link-button">
                 Recuperar acceso
               </button>
+
+              <button
+                type="button"
+                className="link-button"
+                onClick={onShowRegister}
+              >
+                Crear cuenta
+              </button>
+
+   
+                
             </div>
+
+            
+
+           
+
+
+            
 
             <button className="login-submit-button" type="submit" disabled={loading}>
               {loading ? 'Validando...' : 'Iniciar sesión'}
