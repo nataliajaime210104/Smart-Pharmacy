@@ -1,223 +1,48 @@
-.schedules-container{
-    display:flex;
-    flex-direction:column;
-    gap:28px;
+.patient-schedules-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  color: #172033;
 }
 
-.day-title{
-    font-size:24px;
-    font-weight:700;
-    color:#ec4899;
-    margin:25px 0 5px;
-    border-left:5px solid #ec4899;
-    padding-left:12px;
+.patient-schedules-hero,
+.patient-schedules-content {
+  border: 1px solid #e5ebf2;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 14px 38px rgba(32, 51, 83, 0.08);
 }
 
-.schedule-card{
-    background:#fff;
-    border-radius:20px;
-    padding:25px;
-    margin-top:15px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    transition:.25s;
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-}
-
-.schedule-card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 18px 35px rgba(0,0,0,.12);
-}
-
-.schedule-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.schedule-header h2{
-    margin:0;
-    color:#374151;
-    font-size:24px;
-}
-
-.schedule-time{
-    text-align:center;
-}
-
-.schedule-time h1{
-    margin:0;
-    font-size:58px;
-    font-weight:700;
-    color:#ec4899;
-}
-
-.schedule-time small{
-    display:block;
-    margin-top:5px;
-    color:#9ca3af;
-    font-size:15px;
-}
-
-.schedule-status{
-    padding:8px 18px;
-    border-radius:30px;
-    font-size:14px;
-    font-weight:700;
-}
-
-.status-pending{
-    background:#FFF8DB;
-    color:#B7791F;
-}
-
-.status-done{
-    background:#DCFCE7;
-    color:#166534;
-}
-
-.status-missed{
-    background:#FEE2E2;
-    color:#991B1B;
-}
-
-.schedule-info{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:18px;
-}
-
-.info-box{
-    background:#F9FAFB;
-    border-radius:14px;
-    padding:18px;
-    border:1px solid #E5E7EB;
-}
-
-.info-box span{
-    display:block;
-    color:#9CA3AF;
-    font-size:13px;
-    margin-bottom:6px;
-}
-
-.info-box strong{
-    color:#374151;
-    font-size:17px;
-}
-
-.schedule-button{
-    border:none;
-    border-radius:14px;
-    padding:14px;
-    background:#ec4899;
-    color:white;
-    cursor:pointer;
-    font-size:15px;
-    font-weight:600;
-    transition:.2s;
-}
-
-.schedule-button:hover{
-    background:#db2777;
-    transform:scale(1.02);
-}
-
-.schedule-card.pending{
-    border-left:8px solid #FBC02D;
-}
-
-.schedule-card.done{
-    border-left:8px solid #22C55E;
-}
-
-.schedule-card.missed{
-    border-left:8px solid #EF4444;
-}
-
-@media (max-width:768px){
-
-    .schedule-time h1{
-        font-size:42px;
-    }
-
-    .schedule-header{
-        flex-direction:column;
-        gap:15px;
-        align-items:flex-start;
-    }
-
-}
-
-
-
-
-
-
-.notification-card{
-
-    background:linear-gradient(
-        135deg,
-        #ec4899,
-        #f472b6
-    );
-
-    color:white;
-
-    border-radius:20px;
-
-    padding:25px;
-
-    margin-bottom:30px;
-
-    box-shadow:0 10px 30px rgba(236,72,153,.30);
-
-}
-
-.notification-card h1{
-
-    font-size:52px;
-
-    margin:10px 0;
-
-}
-
-.notification-card h2{
-
-    margin:0;
-
-}
-
-.notification-card h3{
-
-    margin-top:15px;
-
-}
-
-.notification-card.success{
-
-    background:linear-gradient(
-        135deg,
-        #16a34a,
-        #22c55e
-    );
-
-}
-
-/* Vista de calendario integrada desde la rama Alexa. */
-.patient-schedules-heading {
+.patient-schedules-hero {
+  min-height: 178px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
+  gap: 28px;
+  padding: 28px 34px;
+  overflow: hidden;
+  position: relative;
+}
+
+.patient-schedules-hero::before {
+  content: '';
+  position: absolute;
+  left: -90px;
+  bottom: -115px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: rgba(14, 165, 160, 0.08);
+  pointer-events: none;
 }
 
 .patient-schedules-title {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
+  min-width: 0;
 }
 
 .patient-schedules-title h1,
@@ -225,99 +50,266 @@
   margin: 0;
 }
 
+.patient-schedules-title h1 {
+  margin-top: 2px;
+  color: #15223b;
+  font-size: clamp(28px, 3.4vw, 38px);
+  line-height: 1.05;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+
 .patient-schedules-title p {
-  margin-top: 6px;
-  color: #64748b;
+  margin-top: 8px;
+  color: #68758a;
+  font-size: 15px;
+}
+
+.patient-schedules-kicker,
+.patient-schedules-section-label {
+  display: block;
+  color: #8290a3;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .patient-schedules-icon {
-  width: 58px;
-  height: 58px;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
   display: grid;
   place-items: center;
   border-radius: 18px;
   color: #ffffff;
-  background: linear-gradient(135deg, #2563eb, #22c55e);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.2);
+  background: linear-gradient(145deg, #0ea5a0 0%, #18a8a3 48%, #54b978 100%);
+  box-shadow: 0 12px 25px rgba(14, 165, 160, 0.25);
+}
+
+.patient-schedules-next-dose {
+  position: relative;
+  z-index: 1;
+  width: min(270px, 100%);
+  flex: 0 0 auto;
+}
+
+.notification-card {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid #dfe6ef;
+  border-radius: 18px;
+  color: #172033;
+  background: linear-gradient(155deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 10px 24px rgba(32, 51, 83, 0.07);
+}
+
+.notification-card::before {
+  content: 'PRÓXIMA TOMA';
+  display: block;
+  margin-bottom: 8px;
+  color: #8290a3;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+}
+
+.notification-card h2,
+.notification-card h3,
+.notification-card h1,
+.notification-card p {
+  margin: 0;
+}
+
+.notification-card h2 {
+  color: #15223b;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.notification-card h3 {
+  margin-top: 11px;
+  color: #24324a;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.notification-card h1 {
+  margin-top: 6px;
+  color: #172033;
+  font-size: 31px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+
+.notification-card p {
+  margin-top: 7px;
+  color: #778499;
+  font-size: 12px;
+}
+
+.notification-card .schedule-button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.notification-card.success {
+  border-color: #c8ead6;
+  color: #146c43;
+  background: linear-gradient(145deg, #f0fff7, #ffffff);
+}
+
+.notification-card.success::before {
+  content: 'TRATAMIENTO AL DÍA';
+  color: #299363;
+}
+
+.notification-card.success h2,
+.notification-card.success h3,
+.notification-card.success p {
+  color: #146c43;
+}
+
+.patient-schedules-content {
+  padding: 22px;
+}
+
+.patient-schedules-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 3px 2px 20px;
+}
+
+.patient-schedules-toolbar h2 {
+  margin: 3px 0 0;
+  color: #15223b;
+  font-size: clamp(22px, 2.6vw, 29px);
+  font-weight: 850;
+  letter-spacing: -0.025em;
 }
 
 .schedule-view-switch {
   display: inline-flex;
-  gap: 6px;
+  gap: 5px;
   padding: 5px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dfe6ef;
   border-radius: 14px;
-  background: #f8fafc;
+  background: #f7f9fc;
 }
 
 .schedule-view-switch button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
+  min-height: 40px;
   border: 0;
   border-radius: 10px;
-  padding: 10px 14px;
-  color: #475569;
+  padding: 9px 14px;
+  color: #5f6d82;
   background: transparent;
   font: inherit;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-.schedule-view-switch button:hover,
+.schedule-view-switch button:hover {
+  color: #1d4ed8;
+  background: #edf4ff;
+}
+
 .schedule-view-switch button.active {
   color: #ffffff;
-  background: #2563eb;
+  background: linear-gradient(135deg, #2463df, #1f54c5);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
 }
 
+.patient-error-state {
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border: 1px solid #fecaca;
+  border-radius: 13px;
+  color: #991b1b;
+  background: #fff1f2;
+  font-weight: 650;
+}
+
+.schedule-loading-state,
 .schedule-empty-state {
-  min-height: 210px;
+  min-height: 230px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: #64748b;
+  gap: 9px;
+  color: #728096;
   text-align: center;
-  border: 1px dashed #cbd5e1;
-  border-radius: 18px;
-  background: #f8fafc;
+  border: 1px dashed #cad5e3;
+  border-radius: 19px;
+  background: #f9fbfd;
+}
+
+.schedule-loading-state {
+  flex-direction: row;
+}
+
+.schedule-loading-spinner {
+  width: 21px;
+  height: 21px;
+  border: 3px solid #dbe6f3;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: schedule-spin 0.8s linear infinite;
+}
+
+@keyframes schedule-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .schedule-empty-state strong {
-  color: #0f172a;
+  color: #172033;
   font-size: 18px;
 }
 
 .patient-schedules-calendar {
-  min-height: 700px;
-  padding: 20px;
+  min-height: 690px;
+  padding: 18px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e1e8f0;
   border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
 }
 
 .patient-schedules-calendar .medical-calendar {
-  min-height: 660px;
+  min-height: 650px;
   font-family: inherit;
 }
 
 .patient-schedules-calendar .rbc-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 14px;
   margin-bottom: 20px;
 }
 
+.patient-schedules-calendar .rbc-toolbar > .rbc-btn-group:last-child {
+  justify-self: end;
+}
+
 .patient-schedules-calendar .rbc-toolbar-label {
-  color: #0f172a;
-  font-size: clamp(20px, 3vw, 30px);
-  font-weight: 800;
+  color: #111b2e;
+  font-size: clamp(20px, 3vw, 29px);
+  font-weight: 850;
   text-align: center;
+  text-transform: capitalize;
 }
 
 .patient-schedules-calendar .rbc-btn-group {
@@ -326,38 +318,47 @@
 }
 
 .patient-schedules-calendar .rbc-btn-group button {
-  border: 1px solid #dbeafe;
-  border-radius: 10px;
+  min-height: 38px;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
   padding: 8px 11px;
-  color: #334155;
+  color: #536176;
   background: #ffffff;
   font: inherit;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 750;
   cursor: pointer;
+  transition: 0.18s ease;
 }
 
-.patient-schedules-calendar .rbc-btn-group button:hover,
+.patient-schedules-calendar .rbc-btn-group button:hover {
+  border-color: #b7cef7;
+  color: #1d4ed8;
+  background: #eff5ff;
+}
+
 .patient-schedules-calendar .rbc-btn-group button.rbc-active {
   border-color: #2563eb;
   color: #ffffff;
   background: #2563eb;
+  box-shadow: 0 6px 13px rgba(37, 99, 235, 0.2);
 }
 
 .patient-schedules-calendar .rbc-month-view,
 .patient-schedules-calendar .rbc-time-view {
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dfe6ef;
   border-radius: 16px;
 }
 
 .patient-schedules-calendar .rbc-header {
-  padding: 12px 8px;
-  border-color: #e2e8f0;
-  color: #475569;
+  padding: 13px 8px;
+  border-color: #e3e9f1;
+  color: #6d798d;
   background: #f8fafc;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -366,54 +367,377 @@
 }
 
 .patient-schedules-calendar .rbc-date-cell {
-  padding: 8px;
-  color: #334155;
-  font-weight: 700;
+  padding: 8px 9px;
+  color: #4d5b70;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.patient-schedules-calendar .rbc-day-bg,
+.patient-schedules-calendar .rbc-month-row,
+.patient-schedules-calendar .rbc-header,
+.patient-schedules-calendar .rbc-time-content,
+.patient-schedules-calendar .rbc-timeslot-group {
+  border-color: #e8edf3;
 }
 
 .patient-schedules-calendar .rbc-day-bg:hover {
-  background: #eff6ff;
+  background: #f3f8ff;
 }
 
 .patient-schedules-calendar .rbc-today {
-  background: #dbeafe;
+  background: #eef5ff;
 }
 
 .patient-schedules-calendar .rbc-off-range-bg {
-  background: #f8fafc;
+  background: #fafbfd;
 }
 
 .patient-schedules-calendar .rbc-event.schedule-calendar-event {
   border: 0;
   border-radius: 8px;
-  padding: 4px 7px;
+  padding: 5px 7px;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 4px 10px rgba(27, 45, 75, 0.15);
 }
 
 .patient-schedules-calendar .schedule-calendar-event.pending {
-  background: #f59e0b;
+  background: linear-gradient(135deg, #f4a90d, #e99500);
 }
 
 .patient-schedules-calendar .schedule-calendar-event.done {
-  background: #22c55e;
+  background: linear-gradient(135deg, #22a767, #168a54);
 }
 
 .patient-schedules-calendar .schedule-calendar-event.missed {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef5350, #d93d3a);
 }
 
 .patient-schedules-calendar .rbc-show-more {
   color: #2563eb;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 850;
 }
 
 .schedule-list-view {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
+}
+
+.schedule-list-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.schedule-list-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fbfcfe;
+}
+
+.schedule-list-summary span {
+  color: #718096;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.schedule-list-summary strong {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.schedule-list-summary .pending strong {
+  color: #d78b00;
+}
+
+.schedule-list-summary .done strong {
+  color: #168a54;
+}
+
+.schedule-list-summary .missed strong {
+  color: #d8423f;
+}
+
+.schedule-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.day-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 3px;
+}
+
+.day-title-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #2563eb;
+  background: #eaf2ff;
+}
+
+.day-title {
+  margin: 0;
+  color: #22304a;
+  font-size: 18px;
+  font-weight: 850;
+  text-transform: capitalize;
+}
+
+.day-title-row > span {
+  margin-left: auto;
+  color: #8190a4;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.schedule-day-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 15px;
+}
+
+.schedule-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  min-width: 0;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid #e1e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(37, 55, 86, 0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.schedule-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd9e8;
+  box-shadow: 0 15px 34px rgba(37, 55, 86, 0.11);
+}
+
+.schedule-card-topline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #f4a90d;
+}
+
+.schedule-card.done .schedule-card-topline {
+  background: #1ca164;
+}
+
+.schedule-card.missed .schedule-card-topline {
+  background: #e54845;
+}
+
+.schedule-header,
+.schedule-medicine-title,
+.schedule-time-block,
+.info-box,
+.schedule-card-actions {
+  display: flex;
+  align-items: center;
+}
+
+.schedule-header {
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.schedule-medicine-title {
+  gap: 11px;
+  min-width: 0;
+}
+
+.schedule-medicine-icon {
+  flex: 0 0 auto;
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #13a4a1, #4eb77b);
+  box-shadow: 0 8px 17px rgba(14, 165, 160, 0.19);
+}
+
+.schedule-medicine-title span,
+.schedule-time-block span,
+.info-box span {
+  display: block;
+  color: #8793a5;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.schedule-medicine-title h3 {
+  margin: 3px 0 0;
+  overflow: hidden;
+  color: #172033;
+  font-size: 19px;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schedule-status {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.status-pending {
+  color: #9a6200;
+  background: #fff1c9;
+}
+
+.status-done {
+  color: #126d43;
+  background: #daf5e7;
+}
+
+.status-missed {
+  color: #a82927;
+  background: #fee2e2;
+}
+
+.schedule-time-block {
+  gap: 12px;
+  padding: 14px 15px;
+  border: 1px solid #e4eaf1;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #fbfcfe, #f5f8fc);
+}
+
+.schedule-time-icon,
+.info-box-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+  background: #eaf2ff;
+}
+
+.schedule-time-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.schedule-time-block strong {
+  display: block;
+  margin-top: 2px;
+  color: #1f4fbf;
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+.schedule-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.info-box {
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e5eaf1;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.info-box-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  color: #0f8e89;
+  background: #e5f7f5;
+}
+
+.info-box strong {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #2d3a50;
+  font-size: 14px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schedule-card-actions {
+  gap: 9px;
+  margin-top: auto;
+}
+
+.schedule-button,
+.schedule-details-button,
+.schedule-modal-secondary {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 11px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.schedule-button {
+  flex: 1;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #1f56cc);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+}
+
+.schedule-button:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #1d4ed8, #1948b3);
+}
+
+.schedule-details-button {
+  flex: 0 0 auto;
+  border: 1px solid #dfe6ef;
+  color: #526078;
+  background: #f8fafc;
+}
+
+.schedule-details-button:hover {
+  border-color: #b9ccef;
+  color: #1d4ed8;
+  background: #edf4ff;
 }
 
 .schedule-modal-overlay {
@@ -423,41 +747,47 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(15, 23, 42, 0.52);
+  background: rgba(37, 44, 57, 0.66);
   backdrop-filter: blur(5px);
 }
 
 .schedule-modal {
   position: relative;
-  width: min(520px, 100%);
-  padding: 26px;
-  border-radius: 20px;
-  color: #0f172a;
+  width: min(470px, 100%);
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 22px;
+  color: #172033;
   background: #ffffff;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+  box-shadow: 0 28px 80px rgba(13, 23, 42, 0.34);
 }
 
 .schedule-modal-close-icon {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 38px;
-  height: 38px;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   border: 0;
   border-radius: 50%;
-  color: #475569;
-  background: #f1f5f9;
+  color: #637086;
+  background: #f1f4f8;
   cursor: pointer;
+}
+
+.schedule-modal-close-icon:hover {
+  color: #172033;
+  background: #e8edf3;
 }
 
 .schedule-modal-title {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
   padding-right: 42px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .schedule-modal-title h2,
@@ -466,13 +796,16 @@
 }
 
 .schedule-modal-title h2 {
-  font-size: 22px;
+  color: #172033;
+  font-size: 21px;
+  font-weight: 850;
 }
 
 .schedule-modal-title span {
   display: block;
-  margin-top: 4px;
-  color: #64748b;
+  margin-top: 3px;
+  color: #7b8799;
+  font-size: 12px;
 }
 
 .schedule-modal-pill {
@@ -482,80 +815,127 @@
   display: grid;
   place-items: center;
   border-radius: 14px;
-  color: #2563eb;
-  background: #dbeafe;
+  color: #ffffff;
+  background: linear-gradient(145deg, #13a4a1, #4eb77b);
 }
 
 .schedule-modal-info {
   display: grid;
-  gap: 10px;
+  gap: 9px;
+  margin-bottom: 14px;
 }
 
 .schedule-modal-info > div {
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
   padding: 13px 15px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #f8fafc;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #e1e8f0;
+  border-radius: 14px;
+  background: #fbfcfe;
+}
+
+.schedule-modal-info > div::after {
+  content: '';
+  position: absolute;
+  top: -24px;
+  right: -24px;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: rgba(14, 165, 160, 0.09);
 }
 
 .schedule-modal-info span {
-  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #7a8799;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .schedule-modal-info strong {
+  position: relative;
+  z-index: 1;
+  color: #2048b4;
+  font-size: 21px;
+  font-weight: 850;
   text-align: right;
 }
 
 .schedule-modal-status {
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  font-size: 15px !important;
 }
 
 .schedule-modal-status.pending {
-  color: #92400e;
-  background: #fef3c7;
+  color: #9a6200;
+  background: #ffc83d;
 }
 
 .schedule-modal-status.done {
-  color: #166534;
-  background: #dcfce7;
+  color: #126d43;
+  background: #daf5e7;
 }
 
 .schedule-modal-status.missed {
-  color: #991b1b;
+  color: #a82927;
   background: #fee2e2;
 }
 
-@media (max-width: 768px) {
-  .patient-schedules-heading,
-  .patient-schedules-title {
-    align-items: flex-start;
+.schedule-modal-primary,
+.schedule-modal-secondary {
+  width: 100%;
+}
+
+.schedule-modal-secondary {
+  margin-top: 8px;
+  color: #334155;
+  background: #e9edf3;
+}
+
+.schedule-modal-secondary:hover {
+  background: #dfe5ec;
+}
+
+@media (max-width: 900px) {
+  .patient-schedules-hero {
+    align-items: stretch;
+    flex-direction: column;
   }
 
-  .schedule-view-switch {
+  .patient-schedules-next-dose {
     width: 100%;
   }
 
-  .schedule-view-switch button {
-    flex: 1;
-    justify-content: center;
+  .notification-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 18px;
   }
 
-  .patient-schedules-calendar {
-    min-height: 590px;
-    padding: 12px;
+  .notification-card::before,
+  .notification-card h2,
+  .notification-card h3,
+  .notification-card p,
+  .notification-card .schedule-button {
+    grid-column: 1;
   }
 
-  .patient-schedules-calendar .medical-calendar {
-    min-height: 560px;
+  .notification-card h1 {
+    grid-column: 2;
+    grid-row: 2 / span 3;
+    align-self: center;
   }
 
   .patient-schedules-calendar .rbc-toolbar {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
   }
@@ -564,18 +944,89 @@
     order: -1;
   }
 
-  .patient-schedules-calendar .rbc-btn-group {
-    display: flex;
+  .patient-schedules-calendar .rbc-toolbar > .rbc-btn-group:last-child {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 680px) {
+  .patient-schedules-hero,
+  .patient-schedules-content {
+    border-radius: 18px;
   }
 
-  .patient-schedules-calendar .rbc-btn-group button {
+  .patient-schedules-hero {
+    padding: 22px 18px;
+  }
+
+  .patient-schedules-title {
+    align-items: flex-start;
+  }
+
+  .patient-schedules-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+  }
+
+  .patient-schedules-content {
+    padding: 15px;
+  }
+
+  .patient-schedules-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .schedule-view-switch {
+    width: 100%;
+  }
+
+  .schedule-view-switch button {
     flex: 1;
+  }
+
+  .schedule-list-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-day-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-info {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-card-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .schedule-details-button,
+  .schedule-button {
+    width: 100%;
+  }
+
+  .patient-schedules-calendar {
+    min-height: 590px;
+    padding: 10px;
+    overflow-x: auto;
+  }
+
+  .patient-schedules-calendar .medical-calendar {
+    min-width: 720px;
+    min-height: 560px;
+  }
+
+  .patient-schedules-calendar .rbc-toolbar {
+    min-width: 700px;
   }
 
   .schedule-modal-info > div {
     align-items: flex-start;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
   }
 
   .schedule-modal-info strong {
