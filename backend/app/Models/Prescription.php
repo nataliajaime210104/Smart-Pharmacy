@@ -18,10 +18,12 @@ class Prescription extends Model
         'signature_hash',
         'verification_code',
         'signature_image_path',
+        'inventory_deducted_at',
     ];
 
     protected $casts = [
         'signed_at' => 'datetime',
+        'inventory_deducted_at' => 'datetime',
     ];
 
     public function patient()

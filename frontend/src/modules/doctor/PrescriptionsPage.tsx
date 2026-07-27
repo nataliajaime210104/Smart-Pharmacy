@@ -437,7 +437,9 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
 
       await loadData();
 
-      setSuccessMessage('Receta firmada digitalmente correctamente.');
+      setSuccessMessage(
+        'Receta firmada correctamente. El inventario se descontó automáticamente.'
+      );
       closeSignaturePad();
 
       window.open(getPrescriptionPdfUrl(selectedPrescription.id), '_blank');
@@ -454,7 +456,7 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
 
   const handleDispensePrescription = async (prescription: Prescription) => {
     const confirmed = window.confirm(
-      `¿Deseas dispensar la receta ${prescription.folio}? Esta acción descontará el inventario disponible.`
+      `¿Confirmas que la receta ${prescription.folio} fue entregada al paciente? El inventario ya fue descontado al firmarla.`
     );
 
     if (!confirmed) {
@@ -470,7 +472,7 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
       await loadData();
 
       setSuccessMessage(
-        'Receta dispensada correctamente. El inventario fue actualizado.'
+        'Entrega de receta confirmada correctamente.'
       );
     } catch (error) {
       setErrorMessage(
@@ -967,8 +969,8 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
                           >
                             <CheckCircle size={15} />
                             {dispensingId === prescription.id
-                              ? 'Dispensando...'
-                              : 'Dispensar'}
+                              ? 'Confirmando...'
+                              : 'Confirmar entrega'}
                           </button>
                         </>
                       )}
@@ -1025,6 +1027,11 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
 
               <p>
                 <strong>Médico:</strong> {currentUser.name}
+              </p>
+
+              <p>
+                <strong>Inventario:</strong> se descontará automáticamente al
+                firmar esta receta.
               </p>
             </div>
 

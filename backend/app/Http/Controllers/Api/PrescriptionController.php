@@ -7,6 +7,7 @@ use App\Models\Inventory;
 use App\Models\Medicine;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -132,6 +133,7 @@ class PrescriptionController extends Controller
     public function sign(
         Request $request,
         Prescription $prescription,
+        InventoryAlertService $inventoryAlerts,
         NotificationDispatcher $dispatcher,
     )
     {
@@ -140,13 +142,6 @@ class PrescriptionController extends Controller
             'signerName' => ['required', 'string', 'max:255'],
         ]);
 
-        if ($prescription->status !== 'Borrador') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Solo se pueden firmar recetas en estado Borrador.',
-            ], 422);
-        }
-
         if (!str_starts_with($validated['signatureDataUrl'], 'data:image/png;base64,')) {
             return response()->json([
                 'success' => false,
@@ -154,105 +149,161 @@ class PrescriptionController extends Controller
             ], 422);
         }
 
-        $prescription->load([
-            'patient.user',
-            'doctor',
-            'items.medicine',
-        ]);
+        $base64Signature = str_replace(
+            'data:image/png;base64,',
+            '',
+            $validated['signatureDataUrl'],
+        );
 
-        $itemsForValidation = $prescription->items->map(function ($item) {
-            return [
-                'medicineId' => $item->medicine_id,
-                'quantity' => $item->quantity,
-            ];
-        })->toArray();
+        $signatureBinary = base64_decode($base64Signature, true);
 
-        $stockValidation = $this->validatePrescriptionStock($itemsForValidation);
-
-        if (!$stockValidation['isValid']) {
+        if ($signatureBinary === false) {
             return response()->json([
                 'success' => false,
-                'message' => 'No hay inventario suficiente para firmar esta receta.',
-                'data' => $stockValidation['items'],
+                'message' => 'La firma enviada no contiene una imagen válida.',
             ], 422);
         }
 
-        $base64Signature = str_replace('data:image/png;base64,', '', $validated['signatureDataUrl']);
-        $signatureBinary = base64_decode($base64Signature);
-
-        $signatureFileName = 'signatures/prescription-' . $prescription->id . '-' . now()->format('YmdHis') . '.png';
-
-        Storage::disk('public')->put($signatureFileName, $signatureBinary);
-
         $signedAt = now();
+        $verificationCode = 'SP-' . strtoupper(substr(
+            hash('sha256', $prescription->folio . $signedAt->timestamp),
+            0,
+            10,
+        ));
 
-        $verificationCode = 'SP-' . strtoupper(substr(hash('sha256', $prescription->folio . now()->timestamp), 0, 10));
+        $signatureFileName = 'signatures/prescription-' .
+            $prescription->id . '-' .
+            $signedAt->format('YmdHis') . '-' .
+            Str::lower(Str::random(6)) . '.png';
 
-        $signaturePayload = [
-            'folio' => $prescription->folio,
-            'patientId' => $prescription->patient_id,
-            'patientName' => $prescription->patient?->full_name,
-            'doctorId' => $prescription->doctor_id,
-            'doctorName' => $prescription->doctor?->name,
-            'diagnosis' => $prescription->diagnosis,
-            'items' => $prescription->items->map(function ($item) {
-                return [
-                    'medicineId' => $item->medicine_id,
-                    'medicineName' => $item->medicine?->name,
-                    'quantity' => $item->quantity,
-                    'dosage' => $item->dosage,
-                    'frequency' => $item->frequency,
-                    'duration' => $item->duration,
-                    'instructions' => $item->instructions,
+        if (!Storage::disk('public')->put($signatureFileName, $signatureBinary)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No fue posible guardar la firma digital.',
+            ], 500);
+        }
+
+        try {
+            $transactionResult = DB::transaction(function () use (
+                $prescription,
+                $validated,
+                $signedAt,
+                $verificationCode,
+                $signatureFileName,
+            ) {
+                $lockedPrescription = Prescription::query()
+                    ->whereKey($prescription->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ($lockedPrescription->status !== 'Borrador') {
+                    throw ValidationException::withMessages([
+                        'prescription' => 'Solo se pueden firmar recetas en estado Borrador.',
+                    ]);
+                }
+
+                $lockedPrescription->load([
+                    'patient.user',
+                    'doctor',
+                    'items.medicine',
+                ]);
+
+                $inventoryMovements = $lockedPrescription->inventory_deducted_at
+                    ? []
+                    : $this->deductInventoryForPrescription($lockedPrescription);
+
+                $signaturePayload = [
+                    'folio' => $lockedPrescription->folio,
+                    'patientId' => $lockedPrescription->patient_id,
+                    'patientName' => $lockedPrescription->patient?->full_name,
+                    'doctorId' => $lockedPrescription->doctor_id,
+                    'doctorName' => $lockedPrescription->doctor?->name,
+                    'diagnosis' => $lockedPrescription->diagnosis,
+                    'items' => $lockedPrescription->items->map(function ($item) {
+                        return [
+                            'medicineId' => $item->medicine_id,
+                            'medicineName' => $item->medicine?->name,
+                            'quantity' => $item->quantity,
+                            'dosage' => $item->dosage,
+                            'frequency' => $item->frequency,
+                            'duration' => $item->duration,
+                            'instructions' => $item->instructions,
+                        ];
+                    })->toArray(),
+                    'signedAt' => $signedAt->toDateTimeString(),
+                    'signedByName' => $validated['signerName'],
+                    'verificationCode' => $verificationCode,
                 ];
-            })->toArray(),
-            'signedAt' => $signedAt->toDateTimeString(),
-            'signedByName' => $validated['signerName'],
-            'verificationCode' => $verificationCode,
-        ];
 
-        $signatureHash = hash('sha256', json_encode($signaturePayload));
+                $lockedPrescription->update([
+                    'status' => 'Firmada',
+                    'signed_at' => $signedAt,
+                    'signed_by_name' => $validated['signerName'],
+                    'signature_hash' => hash('sha256', json_encode($signaturePayload)),
+                    'verification_code' => $verificationCode,
+                    'signature_image_path' => $signatureFileName,
+                    'inventory_deducted_at' => $signedAt,
+                ]);
 
-        $prescription->update([
-            'status' => 'Firmada',
-            'signed_at' => $signedAt,
-            'signed_by_name' => $validated['signerName'],
-            'signature_hash' => $signatureHash,
-            'verification_code' => $verificationCode,
-            'signature_image_path' => $signatureFileName,
-        ]);
+                return [
+                    'inventoryMovements' => $inventoryMovements,
+                ];
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk('public')->delete($signatureFileName);
+            throw $exception;
+        }
 
+        $prescription->refresh();
         $prescription->load([
             'patient.user',
             'doctor',
             'items.medicine',
         ]);
+
+        $inventoryMovements = $transactionResult['inventoryMovements'];
+
+        if ($inventoryMovements !== []) {
+            $inventoryAlerts->evaluateMany(
+                $prescription->items->pluck('medicine_id')->all(),
+            );
+
+            $this->notifyPharmacyInventoryDeduction(
+                $prescription,
+                $inventoryMovements,
+                $dispatcher,
+            );
+        }
 
         $patientUser = $prescription->patient?->user;
 
         if ($patientUser && $patientUser->status === 'Activo') {
-            $dispatcher->send(
-                $patientUser,
-                new SmartPharmacyNotification(
-                    notificationType: 'prescription_ready',
-                    title: 'Nueva receta médica disponible',
-                    body: "El Dr./Dra. {$prescription->doctor?->name} firmó la receta {$prescription->folio}.",
-                    actionUrl: '/?section=prescriptions',
-                    severity: 'info',
-                    metadata: [
-                        'prescriptionId' => $prescription->id,
-                        'folio' => $prescription->folio,
-                        'doctorName' => $prescription->doctor?->name,
-                    ],
-                    pushTitle: 'Nueva receta disponible',
-                    pushBody: 'Tu médico generó una nueva receta. Abre SmartPharmacy para consultarla.',
-                ),
-            );
+            try {
+                $dispatcher->send(
+                    $patientUser,
+                    new SmartPharmacyNotification(
+                        notificationType: 'prescription_ready',
+                        title: 'Nueva receta médica disponible',
+                        body: "El Dr./Dra. {$prescription->doctor?->name} firmó la receta {$prescription->folio}.",
+                        actionUrl: '/?section=prescriptions',
+                        severity: 'info',
+                        metadata: [
+                            'prescriptionId' => $prescription->id,
+                            'folio' => $prescription->folio,
+                            'doctorName' => $prescription->doctor?->name,
+                        ],
+                        pushTitle: 'Nueva receta disponible',
+                        pushBody: 'Tu médico generó una nueva receta. Abre SmartPharmacy para consultarla.',
+                    ),
+                );
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Receta firmada digitalmente correctamente.',
+            'message' => 'Receta firmada correctamente. El inventario fue descontado automáticamente.',
             'data' => $this->formatPrescription($prescription),
         ]);
     }
@@ -348,6 +399,137 @@ class PrescriptionController extends Controller
         ];
     }
 
+    /**
+     * Descuenta el inventario de una receta usando primero los lotes con
+     * vencimiento más próximo. Debe ejecutarse dentro de una transacción.
+     *
+     * @return array<int, array<string, int|string|null>>
+     */
+    private function deductInventoryForPrescription(Prescription $prescription): array
+    {
+        $requestedByMedicine = [];
+
+        foreach ($prescription->items as $item) {
+            $medicineId = (int) $item->medicine_id;
+
+            if (!isset($requestedByMedicine[$medicineId])) {
+                $requestedByMedicine[$medicineId] = [
+                    'quantity' => 0,
+                    'medicineName' => $item->medicine?->name,
+                ];
+            }
+
+            $requestedByMedicine[$medicineId]['quantity'] += (int) $item->quantity;
+        }
+
+        $movements = [];
+
+        foreach ($requestedByMedicine as $medicineId => $requested) {
+            $inventories = Inventory::query()
+                ->where('medicine_id', $medicineId)
+                ->where('status', 'Activo')
+                ->where('stock', '>', 0)
+                ->orderByRaw('expiration_date IS NULL')
+                ->orderBy('expiration_date')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            $availableStock = (int) $inventories->sum('stock');
+            $requestedQuantity = (int) $requested['quantity'];
+
+            if ($availableStock < $requestedQuantity) {
+                throw ValidationException::withMessages([
+                    'inventory' => 'No hay inventario suficiente para ' .
+                        ($requested['medicineName'] ?? 'el medicamento seleccionado') .
+                        '. Disponible: ' . $availableStock .
+                        ', solicitado: ' . $requestedQuantity . '.',
+                ]);
+            }
+
+            $remainingQuantity = $requestedQuantity;
+
+            foreach ($inventories as $inventory) {
+                if ($remainingQuantity <= 0) {
+                    break;
+                }
+
+                $quantityToDiscount = min((int) $inventory->stock, $remainingQuantity);
+
+                $inventory->decrement('stock', $quantityToDiscount);
+                $remainingQuantity -= $quantityToDiscount;
+            }
+
+            $movements[] = [
+                'medicineId' => (int) $medicineId,
+                'medicineName' => $requested['medicineName'],
+                'deductedQuantity' => $requestedQuantity,
+                'previousStock' => $availableStock,
+                'remainingStock' => $availableStock - $requestedQuantity,
+            ];
+        }
+
+        return $movements;
+    }
+
+    /**
+     * @param array<int, array<string, int|string|null>> $inventoryMovements
+     */
+    private function notifyPharmacyInventoryDeduction(
+        Prescription $prescription,
+        array $inventoryMovements,
+        NotificationDispatcher $dispatcher,
+    ): void {
+        $movementLabels = array_map(
+            fn (array $movement) =>
+                ($movement['medicineName'] ?? 'Medicamento') .
+                ': -' . $movement['deductedQuantity'] .
+                ' (restan ' . $movement['remainingStock'] . ')',
+            $inventoryMovements,
+        );
+
+        $visibleMovements = array_slice($movementLabels, 0, 3);
+        $summary = implode(', ', $visibleMovements);
+
+        if (count($movementLabels) > count($visibleMovements)) {
+            $summary .= ' y ' . (count($movementLabels) - count($visibleMovements)) . ' medicamento(s) más';
+        }
+
+        User::query()
+            ->where('status', 'Activo')
+            ->where('role', 'Administrador Farmacia')
+            ->each(function (User $user) use (
+                $prescription,
+                $inventoryMovements,
+                $summary,
+                $dispatcher,
+            ): void {
+                try {
+                    $dispatcher->send(
+                        $user,
+                        new SmartPharmacyNotification(
+                            notificationType: 'inventory_prescription_outflow',
+                            title: 'Salida de inventario por receta',
+                            body: "La receta {$prescription->folio} descontó {$summary}.",
+                            actionUrl: '/?section=inventory',
+                            severity: 'info',
+                            metadata: [
+                                'prescriptionId' => $prescription->id,
+                                'folio' => $prescription->folio,
+                                'patientName' => $prescription->patient?->full_name,
+                                'doctorName' => $prescription->doctor?->name,
+                                'movements' => $inventoryMovements,
+                            ],
+                            pushTitle: 'Inventario actualizado',
+                            pushBody: "La receta {$prescription->folio} generó una salida de medicamentos.",
+                        ),
+                    );
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
+            });
+    }
+
     private function generateFolio()
     {
         return 'RX-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
@@ -366,12 +548,15 @@ class PrescriptionController extends Controller
             'notes' => $prescription->notes,
             'status' => $prescription->status,
             'signedAt' => $prescription->signed_at?->format('Y-m-d H:i:s'),
+            'inventoryDeductedAt' => $prescription->inventory_deducted_at?->format('Y-m-d H:i:s'),
             'signatureHash' => $prescription->signature_hash,
             'createdAt' => $prescription->created_at?->format('Y-m-d H:i:s'),
             'signedByName' => $prescription->signed_by_name,
             'verificationCode' => $prescription->verification_code,
             'signatureImagePath' => $prescription->signature_image_path,
-            'pdfUrl' => $prescription->status === 'Firmada' ? url('/api/prescriptions/' . $prescription->id . '/pdf') : null,
+            'pdfUrl' => in_array($prescription->status, ['Firmada', 'Dispensada'], true)
+                ? url('/api/prescriptions/' . $prescription->id . '/pdf')
+                : null,
             'items' => $prescription->items->map(function ($item) {
                 return [
                     'id' => $item->id,
@@ -391,68 +576,51 @@ class PrescriptionController extends Controller
     public function dispense(
         Prescription $prescription,
         InventoryAlertService $inventoryAlerts,
+        NotificationDispatcher $dispatcher,
     )
     {
-        if ($prescription->status === 'Dispensada') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Esta receta ya fue dispensada anteriormente.',
-            ], 422);
-        }
+        $transactionResult = DB::transaction(function () use ($prescription) {
+            $lockedPrescription = Prescription::query()
+                ->whereKey($prescription->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if ($prescription->status !== 'Firmada') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Solo se pueden dispensar recetas firmadas.',
-            ], 422);
-        }
-
-        $prescription->load([
-            'patient.user',
-            'doctor',
-            'items.medicine',
-        ]);
-
-        DB::transaction(function () use ($prescription) {
-            foreach ($prescription->items as $item) {
-                $remainingQuantity = $item->quantity;
-
-                $inventories = Inventory::where('medicine_id', $item->medicine_id)
-                    ->where('status', 'Activo')
-                    ->where('stock', '>', 0)
-                    ->orderByRaw('expiration_date IS NULL')
-                    ->orderBy('expiration_date', 'asc')
-                    ->orderBy('id', 'asc')
-                    ->lockForUpdate()
-                    ->get();
-
-                $availableStock = $inventories->sum('stock');
-
-                if ($availableStock < $remainingQuantity) {
-                    throw ValidationException::withMessages([
-                        'inventory' => 'No hay inventario suficiente para dispensar ' .
-                            ($item->medicine?->name ?? 'este medicamento') .
-                            '. Disponible: ' . $availableStock .
-                            ', solicitado: ' . $remainingQuantity . '.',
-                    ]);
-                }
-
-                foreach ($inventories as $inventory) {
-                    if ($remainingQuantity <= 0) {
-                        break;
-                    }
-
-                    $quantityToDiscount = min($inventory->stock, $remainingQuantity);
-
-                    $inventory->decrement('stock', $quantityToDiscount);
-
-                    $remainingQuantity -= $quantityToDiscount;
-                }
+            if ($lockedPrescription->status === 'Dispensada') {
+                throw ValidationException::withMessages([
+                    'prescription' => 'Esta receta ya fue dispensada anteriormente.',
+                ]);
             }
 
-            $prescription->update([
-                'status' => 'Dispensada',
+            if ($lockedPrescription->status !== 'Firmada') {
+                throw ValidationException::withMessages([
+                    'prescription' => 'Solo se pueden dispensar recetas firmadas.',
+                ]);
+            }
+
+            $lockedPrescription->load([
+                'patient.user',
+                'doctor',
+                'items.medicine',
             ]);
+
+            // Compatibilidad con recetas firmadas antes de agregar el descuento
+            // automático: solo esas recetas descuentan al confirmar la entrega.
+            $inventoryMovements = [];
+
+            if (!$lockedPrescription->inventory_deducted_at) {
+                $inventoryMovements = $this->deductInventoryForPrescription(
+                    $lockedPrescription,
+                );
+            }
+
+            $lockedPrescription->update([
+                'status' => 'Dispensada',
+                'inventory_deducted_at' => $lockedPrescription->inventory_deducted_at ?? now(),
+            ]);
+
+            return [
+                'inventoryMovements' => $inventoryMovements,
+            ];
         });
 
         $prescription->refresh();
@@ -462,13 +630,23 @@ class PrescriptionController extends Controller
             'items.medicine',
         ]);
 
-        $inventoryAlerts->evaluateMany(
-            $prescription->items->pluck('medicine_id')->all(),
-        );
+        $inventoryMovements = $transactionResult['inventoryMovements'];
+
+        if ($inventoryMovements !== []) {
+            $inventoryAlerts->evaluateMany(
+                $prescription->items->pluck('medicine_id')->all(),
+            );
+
+            $this->notifyPharmacyInventoryDeduction(
+                $prescription,
+                $inventoryMovements,
+                $dispatcher,
+            );
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Receta dispensada correctamente. El inventario fue actualizado.',
+            'message' => 'Entrega de receta confirmada correctamente.',
             'data' => $this->formatPrescription($prescription),
         ]);
     }

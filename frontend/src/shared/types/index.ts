@@ -72,6 +72,7 @@ export interface PatientPrescription {
   notes: string | null;
   status: PrescriptionStatus;
   signedAt: string | null;
+  inventoryDeductedAt: string | null;
   signatureHash: string | null;
   verificationCode: string | null;
   createdAt: string | null;
@@ -187,6 +188,7 @@ export interface Prescription {
   notes: string | null;
   status: PrescriptionStatus;
   signedAt: string | null;
+  inventoryDeductedAt: string | null;
   signedByName: string | null;
   signatureHash: string | null;
   verificationCode: string | null;

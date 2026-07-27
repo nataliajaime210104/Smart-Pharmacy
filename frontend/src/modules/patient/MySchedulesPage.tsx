@@ -364,7 +364,9 @@ export default function MySchedulesPage({ user }: Props) {
 
                             <div>
                               <span>Medicamento</span>
-                              <h3>
+                              <h3
+                                title={schedule.medicineName ?? 'Medicamento'}
+                              >
                                 {schedule.medicineName ?? 'Medicamento'}
                               </h3>
                             </div>
@@ -396,7 +398,9 @@ export default function MySchedulesPage({ user }: Props) {
                             </div>
                             <div>
                               <span>Dosis</span>
-                              <strong>
+                              <strong
+                                title={schedule.dosage ?? 'No registrada'}
+                              >
                                 {schedule.dosage ?? 'No registrada'}
                               </strong>
                             </div>
@@ -408,7 +412,9 @@ export default function MySchedulesPage({ user }: Props) {
                             </div>
                             <div>
                               <span>Frecuencia</span>
-                              <strong>
+                              <strong
+                                title={schedule.frequency ?? 'No registrada'}
+                              >
                                 {schedule.frequency ?? 'No registrada'}
                               </strong>
                             </div>

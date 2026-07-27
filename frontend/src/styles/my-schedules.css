@@ -1033,3 +1033,93 @@
     text-align: left;
   }
 }
+
+/* Ajustes para textos largos dentro de las tarjetas de horarios. */
+.schedule-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.schedule-medicine-title {
+  flex: 1 1 auto;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.schedule-medicine-title > div:last-child,
+.info-box > div:last-child,
+.schedule-time-block > div:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.schedule-medicine-title h3 {
+  display: -webkit-box;
+  min-height: 2.35em;
+  overflow: hidden;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+  text-overflow: initial;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.schedule-status {
+  align-self: start;
+  max-width: 92px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.info-box {
+  align-items: flex-start;
+}
+
+.info-box strong {
+  display: -webkit-box;
+  min-height: 2.45em;
+  overflow: hidden;
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+  text-overflow: initial;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.schedule-card-actions {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(145px, 1.25fr);
+}
+
+.schedule-card-actions > button {
+  min-width: 0;
+  height: 100%;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+}
+
+.schedule-card.done .schedule-card-actions,
+.schedule-card.missed .schedule-card-actions {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 1180px) {
+  .schedule-day-grid {
+    grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+  }
+
+  .schedule-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .schedule-card-actions {
+    display: flex;
+    grid-template-columns: none;
+  }
+}
