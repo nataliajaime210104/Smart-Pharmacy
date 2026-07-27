@@ -16,7 +16,9 @@ import {
   AlarmClock,
   CalendarDays,
   Check,
+  ChevronDown,
   Clock3,
+  Filter,
   List,
   Pill,
   X,
@@ -89,11 +91,16 @@ function formatScheduleTime(value: string) {
   });
 }
 
+function getMedicineFilterName(schedule: MedicationSchedule) {
+  return schedule.medicineName?.trim() || 'Medicamento sin nombre';
+}
+
 export default function MySchedulesPage({ user }: Props) {
   const [schedules, setSchedules] = useState<MedicationSchedule[]>([]);
   const [selectedSchedule, setSelectedSchedule] =
     useState<MedicationSchedule | null>(null);
   const [activeView, setActiveView] = useState<ScheduleView>('calendar');
+  const [excludedMedicines, setExcludedMedicines] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -136,9 +143,63 @@ export default function MySchedulesPage({ user }: Props) {
     }
   }
 
+  const medicineOptions = useMemo(() => {
+    const medicineCounts = schedules.reduce<Record<string, number>>(
+      (counts, schedule) => {
+        const medicineName = getMedicineFilterName(schedule);
+        counts[medicineName] = (counts[medicineName] ?? 0) + 1;
+        return counts;
+      },
+      {}
+    );
+
+    return Object.entries(medicineCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((first, second) =>
+        first.name.localeCompare(second.name, 'es', { sensitivity: 'base' })
+      );
+  }, [schedules]);
+
+  const visibleMedicineNames = useMemo(
+    () =>
+      medicineOptions
+        .filter((medicine) => !excludedMedicines.includes(medicine.name))
+        .map((medicine) => medicine.name),
+    [excludedMedicines, medicineOptions]
+  );
+
+  const filteredSchedules = useMemo(
+    () =>
+      schedules.filter(
+        (schedule) =>
+          !excludedMedicines.includes(getMedicineFilterName(schedule))
+      ),
+    [excludedMedicines, schedules]
+  );
+
+  const allMedicinesSelected =
+    medicineOptions.length > 0 &&
+    visibleMedicineNames.length === medicineOptions.length;
+
+  function toggleMedicine(medicineName: string) {
+    setExcludedMedicines((current) =>
+      current.includes(medicineName)
+        ? current.filter((name) => name !== medicineName)
+        : [...current, medicineName]
+    );
+  }
+
+  function showAllMedicines() {
+    setExcludedMedicines([]);
+  }
+
+  function hideAllMedicines() {
+    setExcludedMedicines(medicineOptions.map((medicine) => medicine.name));
+  }
+
   const events = useMemo<ScheduleCalendarEvent[]>(
     () =>
-      schedules.map((schedule) => {
+      filteredSchedules.map((schedule) => {
         const start = new Date(schedule.scheduledAt);
 
         return {
@@ -149,7 +210,7 @@ export default function MySchedulesPage({ user }: Props) {
           resource: schedule,
         };
       }),
-    [schedules]
+    [filteredSchedules]
   );
 
   const eventStyleGetter: EventPropGetter<ScheduleCalendarEvent> = (
@@ -161,7 +222,7 @@ export default function MySchedulesPage({ user }: Props) {
   });
 
   const groupedSchedules = useMemo(() => {
-    const orderedSchedules = [...schedules].sort(
+    const orderedSchedules = [...filteredSchedules].sort(
       (first, second) =>
         new Date(first.scheduledAt).getTime() -
         new Date(second.scheduledAt).getTime()
@@ -194,17 +255,20 @@ export default function MySchedulesPage({ user }: Props) {
       },
       {}
     );
-  }, [schedules]);
+  }, [filteredSchedules]);
 
   const scheduleStats = useMemo(
     () => ({
-      pending: schedules.filter((schedule) => schedule.status === 'Pendiente')
+      pending: filteredSchedules.filter(
+        (schedule) => schedule.status === 'Pendiente'
+      ).length,
+      done: filteredSchedules.filter((schedule) => schedule.status === 'Tomado')
         .length,
-      done: schedules.filter((schedule) => schedule.status === 'Tomado').length,
-      missed: schedules.filter((schedule) => schedule.status === 'Omitido')
-        .length,
+      missed: filteredSchedules.filter(
+        (schedule) => schedule.status === 'Omitido'
+      ).length,
     }),
-    [schedules]
+    [filteredSchedules]
   );
 
   return (
@@ -243,26 +307,130 @@ export default function MySchedulesPage({ user }: Props) {
             <h2>Programa de tomas</h2>
           </div>
 
-          <div className="schedule-view-switch" aria-label="Vista de horarios">
-            <button
-              type="button"
-              className={activeView === 'calendar' ? 'active' : ''}
-              onClick={() => setActiveView('calendar')}
-            >
-              <CalendarDays size={17} />
-              Calendario
-            </button>
+          <div className="schedule-toolbar-actions">
+            {medicineOptions.length > 0 && (
+              <details className="schedule-medicine-filter">
+                <summary>
+                  <Filter size={17} />
+                  <span>
+                    {allMedicinesSelected
+                      ? `Todos (${medicineOptions.length})`
+                      : `${visibleMedicineNames.length} de ${medicineOptions.length}`}
+                  </span>
+                  <ChevronDown size={16} className="filter-chevron" />
+                </summary>
 
-            <button
-              type="button"
-              className={activeView === 'list' ? 'active' : ''}
-              onClick={() => setActiveView('list')}
-            >
-              <List size={17} />
-              Lista
-            </button>
+                <div className="schedule-filter-popover">
+                  <div className="schedule-filter-heading">
+                    <div>
+                      <strong>Filtrar medicamentos</strong>
+                      <span>
+                        Selecciona cuáles aparecen en el calendario y la lista.
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={
+                        allMedicinesSelected
+                          ? hideAllMedicines
+                          : showAllMedicines
+                      }
+                    >
+                      {allMedicinesSelected ? 'Limpiar' : 'Seleccionar todos'}
+                    </button>
+                  </div>
+
+                  <div className="schedule-filter-options">
+                    {medicineOptions.map((medicine) => {
+                      const checked = !excludedMedicines.includes(medicine.name);
+
+                      return (
+                        <label key={medicine.name}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleMedicine(medicine.name)}
+                          />
+                          <span className="schedule-filter-checkbox" aria-hidden="true">
+                            {checked && <Check size={14} />}
+                          </span>
+                          <span className="schedule-filter-option-text">
+                            <strong>{medicine.name}</strong>
+                            <small>
+                              {medicine.count} toma
+                              {medicine.count === 1 ? '' : 's'} programada
+                              {medicine.count === 1 ? '' : 's'}
+                            </small>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </details>
+            )}
+
+            <div className="schedule-view-switch" aria-label="Vista de horarios">
+              <button
+                type="button"
+                className={activeView === 'calendar' ? 'active' : ''}
+                onClick={() => setActiveView('calendar')}
+              >
+                <CalendarDays size={17} />
+                Calendario
+              </button>
+
+              <button
+                type="button"
+                className={activeView === 'list' ? 'active' : ''}
+                onClick={() => setActiveView('list')}
+              >
+                <List size={17} />
+                Lista
+              </button>
+            </div>
           </div>
         </div>
+
+        {!loading && medicineOptions.length > 0 && (
+          <div className="schedule-visible-medicines" aria-live="polite">
+            <span>Medicamentos visibles:</span>
+
+            {allMedicinesSelected ? (
+              <span className="schedule-medicine-chip all">
+                Todos los medicamentos
+              </span>
+            ) : visibleMedicineNames.length > 0 ? (
+              visibleMedicineNames.map((medicineName) => (
+                <button
+                  key={medicineName}
+                  type="button"
+                  className="schedule-medicine-chip"
+                  title={`Ocultar ${medicineName}`}
+                  onClick={() => toggleMedicine(medicineName)}
+                >
+                  {medicineName}
+                  <X size={13} />
+                </button>
+              ))
+            ) : (
+              <span className="schedule-medicine-chip empty">
+                Ninguno seleccionado
+              </span>
+            )}
+
+            {!allMedicinesSelected && (
+              <button
+                type="button"
+                className="schedule-show-all-button"
+                onClick={showAllMedicines}
+              >
+                Mostrar todos
+              </button>
+            )}
+          </div>
+        )}
 
         {error && <div className="patient-error-state">{error}</div>}
 
@@ -283,7 +451,20 @@ export default function MySchedulesPage({ user }: Props) {
           </div>
         )}
 
-        {!loading && schedules.length > 0 && activeView === 'calendar' && (
+        {!loading && schedules.length > 0 && filteredSchedules.length === 0 && (
+          <div className="schedule-empty-state schedule-filter-empty-state">
+            <Filter size={40} />
+            <strong>No hay medicamentos visibles.</strong>
+            <span>
+              Selecciona al menos un medicamento para mostrar sus horarios.
+            </span>
+            <button type="button" onClick={showAllMedicines}>
+              Mostrar todos los medicamentos
+            </button>
+          </div>
+        )}
+
+        {!loading && filteredSchedules.length > 0 && activeView === 'calendar' && (
           <div className="patient-schedules-calendar">
             <Calendar<ScheduleCalendarEvent>
               localizer={localizer}
@@ -318,7 +499,7 @@ export default function MySchedulesPage({ user }: Props) {
           </div>
         )}
 
-        {!loading && schedules.length > 0 && activeView === 'list' && (
+        {!loading && filteredSchedules.length > 0 && activeView === 'list' && (
           <div className="schedule-list-view">
             <div className="schedule-list-summary" aria-label="Resumen de tomas">
               <div className="pending">

@@ -25,6 +25,31 @@
     grid-template-columns: 1fr;
   }
 
+  .register-shell {
+    width: min(760px, 100%);
+  }
+
+  .register-hero {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-rows: 1fr;
+    align-items: center;
+    padding: 32px 36px;
+  }
+
+  .register-hero h1 {
+    font-size: 36px;
+  }
+
+  .register-illustration {
+    min-height: 220px;
+    place-items: center;
+  }
+
+  .register-illustration .hero-image {
+    width: 210px;
+    max-height: 230px;
+  }
+
   .login-hero {
     padding: 38px;
   }
@@ -112,6 +137,22 @@
 
   .login-hero {
     display: none;
+  }
+
+  .register-hero {
+    display: none;
+  }
+
+  .register-card {
+    padding: 28px 22px 24px;
+  }
+
+  .register-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .register-field-full {
+    grid-column: auto;
   }
 
   .login-card {

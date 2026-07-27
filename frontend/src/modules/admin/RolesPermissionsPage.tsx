@@ -517,7 +517,7 @@ function RolesPermissionsPage() {
       )}
 
       {!loading && (
-        <div className="table-card users-table">
+        <div className="table-card users-table scrollable-table-card roles-table-card">
           <table>
             <thead>
               <tr>

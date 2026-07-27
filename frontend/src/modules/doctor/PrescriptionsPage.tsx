@@ -875,7 +875,7 @@ function PrescriptionsPage({ currentUser }: PrescriptionsPageProps) {
       )}
 
       {!loading && (
-        <div className="table-card users-table">
+        <div className="table-card users-table scrollable-table-card prescriptions-table-card">
           <table>
             <thead>
               <tr>

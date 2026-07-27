@@ -205,7 +205,7 @@ function PatientRecordPage() {
 
       {!loading && !errorMessage && (
         <div className="clinical-layout">
-          <div className="table-card clinical-patient-list">
+          <div className="table-card clinical-patient-list scrollable-table-card clinical-table-card">
             <table>
               <thead>
                 <tr>

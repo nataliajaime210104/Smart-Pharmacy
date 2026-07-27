@@ -18,7 +18,7 @@ interface RegisterPageProps {
   onShowLogin: () => void;
 }
 
-function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
+function RegisterPage({ onRegister, onShowLogin }: RegisterPageProps) {
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
@@ -43,11 +43,11 @@ function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
       setErrorMessage('');
 
       const response = await register({
-    name,
-    email,
-    password,
-    password_confirmation: confirmPassword,
-});
+        name: `${name.trim()} ${lastname.trim()}`.trim(),
+        email,
+        password,
+        password_confirmation: confirmPassword,
+      });
 
       saveAuthSession(response);
       onRegister(response.user);
@@ -63,35 +63,42 @@ function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
   };
 
   return (
-    <div className="login-page">
+    <div className="login-page register-page">
       <div className="login-background-glow glow-one"></div>
       <div className="login-background-glow glow-two"></div>
 
-      <div className="login-shell">
-        
-
+      <div className="login-shell register-shell">
         <section className="register-hero">
-            <img
-                src={logoPharmacy}
-                
-                alt="SmartPharmacy"
-                className="hero-image"
-            />
-          <div className="login-hero-badge">
-            <Hospital size={18} />
-            Plataforma hospitalaria
+          <div className="register-hero-content">
+            <div className="login-hero-badge">
+              <Hospital size={18} />
+              Plataforma hospitalaria
+            </div>
+
+            <h1>Crear una nueva cuenta</h1>
+
+            <p>
+              Registra tus datos para acceder de forma segura al sistema
+              SmartPharmacy.
+            </p>
+
+            <div className="register-hero-security">
+              <ShieldCheck size={19} />
+              <span>Información protegida y acceso administrado por perfiles.</span>
+            </div>
           </div>
 
-          <h1>Crear una nueva cuenta</h1>
-
-          <p>
-            Registra un nuevo usuario para acceder al sistema SmartPharmacy.
-          </p>
+          <div className="register-illustration" aria-hidden="true">
+            <img
+              src={logoPharmacy}
+              alt=""
+              className="hero-image"
+            />
+          </div>
         </section>
 
-        <section className="login-card">
-          <form onSubmit={handleRegister}>
-
+        <section className="login-card register-card">
+          <form className="register-form" onSubmit={handleRegister}>
             <div className="login-card-header">
               <img
                 className="login-logo"
@@ -109,71 +116,96 @@ function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
               </div>
             )}
 
-            <div className="form-group">
-              <label>Nombre</label>
+            <div className="register-form-grid">
+              <div className="form-group">
+                <label htmlFor="register-name">Nombre</label>
 
-              <div className="login-input-wrapper">
-                <User size={18} />
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Juan"
-                />
+                <div className="login-input-wrapper">
+                  <User size={18} />
+                  <input
+                    id="register-name"
+                    type="text"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Juan"
+                    autoComplete="given-name"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label>Apellido</label>
+              <div className="form-group">
+                <label htmlFor="register-lastname">Apellido</label>
 
-              <div className="login-input-wrapper">
-                <User size={18} />
-                <input
-                  type="text"
-                  value={lastname}
-                  onChange={(e) => setLastname(e.target.value)}
-                  placeholder="Pérez"
-                />
+                <div className="login-input-wrapper">
+                  <User size={18} />
+                  <input
+                    id="register-lastname"
+                    type="text"
+                    value={lastname}
+                    onChange={(event) => setLastname(event.target.value)}
+                    placeholder="Pérez"
+                    autoComplete="family-name"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label>Correo</label>
+              <div className="form-group register-field-full">
+                <label htmlFor="register-email">Correo</label>
 
-              <div className="login-input-wrapper">
-                <Mail size={18} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="usuario@hospital.com"
-                />
+                <div className="login-input-wrapper">
+                  <Mail size={18} />
+                  <input
+                    id="register-email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="usuario@hospital.com"
+                    autoComplete="email"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label>Contraseña</label>
+              <div className="form-group">
+                <label htmlFor="register-password">Contraseña</label>
 
-              <div className="login-input-wrapper">
-                <LockKeyhole size={18} />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="login-input-wrapper">
+                  <LockKeyhole size={18} />
+                  <input
+                    id="register-password"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Mínimo 8 caracteres"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label>Confirmar contraseña</label>
+              <div className="form-group">
+                <label htmlFor="register-password-confirmation">
+                  Confirmar contraseña
+                </label>
 
-              <div className="login-input-wrapper">
-                <LockKeyhole size={18} />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+                <div className="login-input-wrapper">
+                  <LockKeyhole size={18} />
+                  <input
+                    id="register-password-confirmation"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) =>
+                      setConfirmPassword(event.target.value)
+                    }
+                    placeholder="Repite tu contraseña"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -192,20 +224,16 @@ function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
             </div>
 
             <div className="login-options">
-                <center>
-                <button
-                    type="button"
-                    className="link-button"
-                    onClick={onShowLogin}
-                >
-                    ¿Ya tienes cuenta? Inicia sesión
-                </button>
-                </center>
+              <button
+                type="button"
+                className="link-button register-login-link"
+                onClick={onShowLogin}
+              >
+                ¿Ya tienes cuenta? Inicia sesión
+              </button>
             </div>
-
           </form>
         </section>
-
       </div>
     </div>
   );
