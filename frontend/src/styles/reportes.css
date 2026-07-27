@@ -309,10 +309,6 @@ tbody tr:hover {
   min-width: 980px;
 }
 
-.clinical-table-card table {
-  min-width: 900px;
-}
-
 .compact-role-panel {
   background: white;
   border: 1px solid var(--border);
@@ -461,6 +457,35 @@ tbody tr:hover {
 
 .clinical-patient-list table tbody tr {
   cursor: pointer;
+}
+
+.clinical-patient-list table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.clinical-patient-list th,
+.clinical-patient-list td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.clinical-patient-list th:nth-child(1),
+.clinical-patient-list td:nth-child(1) {
+  width: 30%;
+}
+
+.clinical-patient-list th:nth-child(2),
+.clinical-patient-list td:nth-child(2) {
+  width: 40%;
+}
+
+.clinical-patient-list th:nth-child(3),
+.clinical-patient-list td:nth-child(3),
+.clinical-patient-list th:nth-child(4),
+.clinical-patient-list td:nth-child(4) {
+  width: 15%;
+  text-align: center;
 }
 
 .selected-row {
