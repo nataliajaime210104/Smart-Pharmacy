@@ -30,6 +30,18 @@ type DoctorPage =
   | 'medicationHistory'
   | 'assistant';
 
+const doctorPages: DoctorPage[] = ['dashboard', 'registerPatient', 'record', 'prescriptions', 'medicationHistory', 'assistant'];
+
+function getInitialDoctorPage(): DoctorPage {
+  const section = new URLSearchParams(window.location.search).get('section');
+
+  if (section && doctorPages.includes(section as DoctorPage)) {
+    return section as DoctorPage;
+  }
+
+  return 'dashboard';
+}
+
   const doctorSidebarItems:
   PortalSidebarItem<DoctorPage>[] = [
     {
@@ -85,7 +97,7 @@ interface Props {
 }
 
 function DoctorLayout({ user, onLogout }: Props) {
-  const [currentPage, setCurrentPage] = useState<DoctorPage>('dashboard');
+  const [currentPage, setCurrentPage] = useState<DoctorPage>(getInitialDoctorPage);
 
   useDocumentTitle(
     user.role || 'Medico',

@@ -22,6 +22,18 @@ type PharmacyPage =
   | 'medicines'
   | 'inventory';
 
+const pharmacyPages: PharmacyPage[] = ['dashboard', 'medicines', 'inventory'];
+
+function getInitialPharmacyPage(): PharmacyPage {
+  const section = new URLSearchParams(window.location.search).get('section');
+
+  if (section && pharmacyPages.includes(section as PharmacyPage)) {
+    return section as PharmacyPage;
+  }
+
+  return 'dashboard';
+}
+
 const pharmacyPageTitles: Record<PharmacyPage, string> = {
   dashboard: 'Inicio',
   medicines: 'Medicamentos',
@@ -35,7 +47,7 @@ interface Props {
 
 function PharmacyLayout({ user, onLogout }: Props) {
   const [currentPage, setCurrentPage] =
-    useState<PharmacyPage>('dashboard');
+    useState<PharmacyPage>(getInitialPharmacyPage);
 
   useDocumentTitle(
     user.role || 'Farmacia',

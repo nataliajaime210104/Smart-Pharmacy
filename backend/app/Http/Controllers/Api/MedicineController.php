@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Medicine;
+use App\Services\InventoryAlertService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -153,7 +154,11 @@ class MedicineController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, Medicine $medicine)
+    public function update(
+        Request $request,
+        Medicine $medicine,
+        InventoryAlertService $inventoryAlerts,
+    )
     {
         $validated = $request->validate([
             'code' => [
@@ -172,6 +177,8 @@ class MedicineController extends Controller
 
         $medicine->update($validated);
 
+        $inventoryAlerts->evaluateMedicine($medicine->id);
+
         return response()->json([
             'success' => true,
             'message' => 'Medicamento actualizado correctamente.',
@@ -179,11 +186,16 @@ class MedicineController extends Controller
         ]);
     }
 
-    public function deactivate(Medicine $medicine)
+    public function deactivate(
+        Medicine $medicine,
+        InventoryAlertService $inventoryAlerts,
+    )
     {
         $medicine->update([
             'status' => 'Inactivo',
         ]);
+
+        $inventoryAlerts->evaluateMedicine($medicine->id);
 
         return response()->json([
             'success' => true,

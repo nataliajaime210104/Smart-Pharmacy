@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "SmartPharmacy",
+  "short_name": "SmartPharmacy",
+  "description": "Gestión de recetas, medicamentos y recordatorios en tiempo real.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#155eef",
+  "icons": [
+    {
+      "src": "/assets/icons/smartpharmacy-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icons/smartpharmacy-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

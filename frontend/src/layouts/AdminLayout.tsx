@@ -38,6 +38,18 @@ type AdminPage =
   | 'roles'
   | 'assistant';
 
+const adminPages: AdminPage[] = ['dashboard', 'registerPatient', 'record', 'prescriptions', 'medicines', 'inventory', 'roles', 'assistant'];
+
+function getInitialAdminPage(): AdminPage {
+  const section = new URLSearchParams(window.location.search).get('section');
+
+  if (section && adminPages.includes(section as AdminPage)) {
+    return section as AdminPage;
+  }
+
+  return 'dashboard';
+}
+
   const adminSidebarItems:
   PortalSidebarItem<AdminPage>[] = [
     {
@@ -107,7 +119,7 @@ interface Props {
 }
 
 function AdminLayout({ user, onLogout }: Props) {
-  const [currentPage, setCurrentPage] = useState<AdminPage>('dashboard');
+  const [currentPage, setCurrentPage] = useState<AdminPage>(getInitialAdminPage);
 
   useDocumentTitle(
     user.role || 'Administrador Sistema',

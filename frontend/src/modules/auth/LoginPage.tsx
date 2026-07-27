@@ -12,6 +12,7 @@ import {
 
 import type { User } from '../../shared/types';
 import { login } from './services/auth.service';
+import { saveAuthSession } from '../../shared/services/auth-storage';
 
 interface LoginPageProps {
   onLogin: (user: User) => void;
@@ -33,6 +34,7 @@ function LoginPage({ onLogin,  onShowRegister, }: LoginPageProps) {
 
       const response = await login(email, password);
 
+      saveAuthSession(response);
       onLogin(response.user);
     } catch (error) {
       setErrorMessage(

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\PrescriptionController;
 use App\Http\Controllers\Api\AiAssistantController;
 use App\Http\Controllers\Api\MedicationHistoryController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -25,7 +26,6 @@ Route::get('/patients', [PatientController::class, 'index']);
 Route::post('/patients', [PatientController::class, 'store']);
 Route::put('/patients/{patient}/clinical-data', [PatientController::class, 'updateClinicalData']);
 Route::get( '/patient/schedules/{userId}',[PatientController::class, 'mySchedules']);
-Route::patch('/patient/schedules/{id}/taken',[PatientController::class, 'markScheduleAsTaken']);
 
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
@@ -60,4 +60,16 @@ Route::get('/doctor/medication-history', [MedicationHistoryController::class, 'i
 Route::post('/ai-assistant/ask', [AiAssistantController::class, 'ask']);    
 Route::post('/patient/assistant',[AiAssistantController::class, 'patientAsk']);
 
-//notificaciones de paciente
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::patch('/patient/schedules/{id}/taken', [PatientController::class, 'markScheduleAsTaken']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::patch('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/push-subscription', [NotificationController::class, 'subscribe']);
+    Route::delete('/notifications/push-subscription', [NotificationController::class, 'unsubscribe']);
+});

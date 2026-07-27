@@ -12,3 +12,5 @@
 @import './responsive.css';
 @import './pharmacy-modules.css';
 @import './medication-history.css';
+
+@import './notifications.css';

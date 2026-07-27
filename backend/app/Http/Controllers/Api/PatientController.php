@@ -7,6 +7,8 @@ use App\Models\MedicationSchedule;
 use App\Models\Patient;
 use App\Models\Prescription;
 use App\Models\User;
+use App\Notifications\SmartPharmacyNotification;
+use App\Services\NotificationDispatcher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -238,9 +240,16 @@ class PatientController extends Controller
         ]);
     }
 
-    public function markScheduleAsTaken($id)
-    {
-        $schedule = MedicationSchedule::find($id);
+    public function markScheduleAsTaken(
+        Request $request,
+        int $id,
+        NotificationDispatcher $dispatcher,
+    ) {
+        $schedule = MedicationSchedule::with([
+            'patient.user',
+            'prescription.doctor',
+            'prescriptionItem.medicine',
+        ])->find($id);
 
         if (!$schedule) {
             return response()->json([
@@ -249,10 +258,50 @@ class PatientController extends Controller
             ], 404);
         }
 
+        if ($schedule->patient?->user_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes autorización para modificar este horario.',
+            ], 403);
+        }
+
+        if ($schedule->status === 'Tomado') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Este medicamento ya estaba marcado como tomado.',
+            ]);
+        }
+
         $schedule->update([
             'status' => 'Tomado',
             'taken_at' => now(),
         ]);
+
+        $doctor = $schedule->prescription?->doctor;
+        $patientName = $schedule->patient?->full_name ?? 'Un paciente';
+        $medicineName = $schedule->prescriptionItem?->medicine?->name ?? 'su medicamento';
+
+        if ($doctor && $doctor->status === 'Activo') {
+            $dispatcher->send(
+                $doctor,
+                new SmartPharmacyNotification(
+                    notificationType: 'medication_taken',
+                    title: 'Medicamento registrado como tomado',
+                    body: "{$patientName} registró {$medicineName} como tomado.",
+                    actionUrl: '/?section=medicationHistory',
+                    severity: 'success',
+                    metadata: [
+                        'scheduleId' => $schedule->id,
+                        'patientId' => $schedule->patient_id,
+                        'patientName' => $patientName,
+                        'medicineName' => $medicineName,
+                        'takenAt' => $schedule->taken_at?->toIso8601String(),
+                    ],
+                    pushTitle: 'Toma de medicamento registrada',
+                    pushBody: 'Un paciente registró una toma. Abre SmartPharmacy para consultar el detalle.',
+                ),
+            );
+        }
 
         return response()->json([
             'success' => true,

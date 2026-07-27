@@ -1,5 +1,12 @@
-import type { LoginResponse } from '../../../shared/types';
-import { apiPost } from '../../../shared/services/api';
+import type {
+  ApiResponse,
+  LoginResponse,
+  User,
+} from '../../../shared/types';
+import {
+  apiGet,
+  apiPost,
+} from '../../../shared/services/api';
 
 export function login(email: string, password: string) {
   return apiPost<LoginResponse>('/login', {
@@ -15,4 +22,12 @@ export function register(data: {
   password_confirmation: string;
 }) {
   return apiPost<LoginResponse>('/register', data);
+}
+
+export function getAuthenticatedUser() {
+  return apiGet<ApiResponse<User>>('/auth/me');
+}
+
+export function logout() {
+  return apiPost<{ success: boolean; message: string }>('/logout', {});
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
+use App\Services\InventoryAlertService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -37,7 +38,7 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, InventoryAlertService $inventoryAlerts)
     {
         $validated = $request->validate([
             'medicineId' => ['required', 'exists:medicines,id'],
@@ -60,6 +61,7 @@ class InventoryController extends Controller
         ]);
 
         $item->load('medicine');
+        $inventoryAlerts->evaluateMedicine($item->medicine_id);
 
         return response()->json([
             'success' => true,
@@ -68,7 +70,11 @@ class InventoryController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, Inventory $inventory)
+    public function update(
+        Request $request,
+        Inventory $inventory,
+        InventoryAlertService $inventoryAlerts,
+    )
     {
         $validated = $request->validate([
             'medicineId' => ['required', 'exists:medicines,id'],
@@ -79,6 +85,8 @@ class InventoryController extends Controller
             'expirationDate' => ['nullable', 'date'],
             'status' => ['required', Rule::in(['Activo', 'Inactivo'])],
         ]);
+
+        $previousMedicineId = $inventory->medicine_id;
 
         $inventory->update([
             'medicine_id' => $validated['medicineId'],
@@ -92,6 +100,11 @@ class InventoryController extends Controller
 
         $inventory->load('medicine');
 
+        $inventoryAlerts->evaluateMany([
+            $previousMedicineId,
+            $inventory->medicine_id,
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Inventario actualizado correctamente.',
@@ -99,13 +112,17 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function deactivate(Inventory $inventory)
+    public function deactivate(
+        Inventory $inventory,
+        InventoryAlertService $inventoryAlerts,
+    )
     {
         $inventory->update([
             'status' => 'Inactivo',
         ]);
 
         $inventory->load('medicine');
+        $inventoryAlerts->evaluateMedicine($inventory->medicine_id);
 
         return response()->json([
             'success' => true,

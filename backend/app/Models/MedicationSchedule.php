@@ -13,11 +13,13 @@ class MedicationSchedule extends Model
         'scheduled_at',
         'status',
         'taken_at',
+        'reminder_notified_at',
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
         'taken_at' => 'datetime',
+        'reminder_notified_at' => 'datetime',
     ];
 
     public function prescription()

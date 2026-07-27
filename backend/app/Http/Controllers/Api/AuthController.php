@@ -28,17 +28,17 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $token = $user->createToken(
+            $this->deviceName($request),
+            ['*'],
+            now()->addDays(30),
+        )->plainTextToken;
+
         return response()->json([
             'success' => true,
             'message' => 'Inicio de sesión correcto.',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'status' => $user->status,
-                'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
-            ],
+            'token' => $token,
+            'user' => $this->formatUser($user),
         ]);
     }
 
@@ -70,18 +70,51 @@ class AuthController extends Controller
             'last_treatment' => null,
         ]);
 
+        $token = $user->createToken(
+            $this->deviceName($request),
+            ['*'],
+            now()->addDays(30),
+        )->plainTextToken;
+
         return response()->json([
             'success' => true,
             'message' => 'Usuario registrado correctamente.',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'status' => $user->status,
-                'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
-            ],
+            'token' => $token,
+            'user' => $this->formatUser($user),
         ], 201);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->formatUser($request->user()),
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()?->currentAccessToken()?->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesión cerrada correctamente.',
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formatUser(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
+            'profilePhotoUrl' => $this->getProfilePhotoUrl($user),
+        ];
     }
 
     private function getProfilePhotoUrl(User $user): ?string
@@ -91,5 +124,12 @@ class AuthController extends Controller
         }
 
         return '/api/profile-photos/' . basename($user->profile_photo_path);
+    }
+
+    private function deviceName(Request $request): string
+    {
+        $agent = trim((string) $request->userAgent());
+
+        return 'smartpharmacy-web-' . substr(hash('sha256', $agent ?: 'unknown'), 0, 12);
     }
 }

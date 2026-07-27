@@ -13,6 +13,10 @@ use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use App\Services\MedicationScheduleGenerator;
+use App\Services\InventoryAlertService;
+use App\Services\NotificationDispatcher;
+use App\Notifications\SmartPharmacyNotification;
+use Illuminate\Validation\ValidationException;
 
 class PrescriptionController extends Controller
 {
@@ -125,7 +129,11 @@ class PrescriptionController extends Controller
         ], 201);
     }
 
-    public function sign(Request $request, Prescription $prescription)
+    public function sign(
+        Request $request,
+        Prescription $prescription,
+        NotificationDispatcher $dispatcher,
+    )
     {
         $validated = $request->validate([
             'signatureDataUrl' => ['required', 'string'],
@@ -147,7 +155,7 @@ class PrescriptionController extends Controller
         }
 
         $prescription->load([
-            'patient',
+            'patient.user',
             'doctor',
             'items.medicine',
         ]);
@@ -215,10 +223,32 @@ class PrescriptionController extends Controller
         ]);
 
         $prescription->load([
-            'patient',
+            'patient.user',
             'doctor',
             'items.medicine',
         ]);
+
+        $patientUser = $prescription->patient?->user;
+
+        if ($patientUser && $patientUser->status === 'Activo') {
+            $dispatcher->send(
+                $patientUser,
+                new SmartPharmacyNotification(
+                    notificationType: 'prescription_ready',
+                    title: 'Nueva receta médica disponible',
+                    body: "El Dr./Dra. {$prescription->doctor?->name} firmó la receta {$prescription->folio}.",
+                    actionUrl: '/?section=prescriptions',
+                    severity: 'info',
+                    metadata: [
+                        'prescriptionId' => $prescription->id,
+                        'folio' => $prescription->folio,
+                        'doctorName' => $prescription->doctor?->name,
+                    ],
+                    pushTitle: 'Nueva receta disponible',
+                    pushBody: 'Tu médico generó una nueva receta. Abre SmartPharmacy para consultarla.',
+                ),
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -358,7 +388,10 @@ class PrescriptionController extends Controller
         ];
     }
 
-    public function dispense(Prescription $prescription)
+    public function dispense(
+        Prescription $prescription,
+        InventoryAlertService $inventoryAlerts,
+    )
     {
         if ($prescription->status === 'Dispensada') {
             return response()->json([
@@ -428,6 +461,10 @@ class PrescriptionController extends Controller
             'doctor',
             'items.medicine',
         ]);
+
+        $inventoryAlerts->evaluateMany(
+            $prescription->items->pluck('medicine_id')->all(),
+        );
 
         return response()->json([
             'success' => true,

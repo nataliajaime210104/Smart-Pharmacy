@@ -24,6 +24,18 @@ type PatientPage =
   | 'schedules'
   | 'assistant';
 
+const patientPages: PatientPage[] = ['dashboard', 'prescriptions', 'schedules', 'assistant'];
+
+function getInitialPatientPage(): PatientPage {
+  const section = new URLSearchParams(window.location.search).get('section');
+
+  if (section && patientPages.includes(section as PatientPage)) {
+    return section as PatientPage;
+  }
+
+  return 'dashboard';
+}
+
   const patientSidebarItems:
   PortalSidebarItem<PatientPage>[] = [
     {
@@ -65,7 +77,7 @@ interface Props {
 }
 
 function PatientLayout({ user, onLogout }: Props) {
-  const [currentPage, setCurrentPage] = useState<PatientPage>('dashboard');
+  const [currentPage, setCurrentPage] = useState<PatientPage>(getInitialPatientPage);
 
   useDocumentTitle(
     user.role || 'Paciente',

@@ -10,6 +10,7 @@ import {
 
 import type { User as UserType } from '../../shared/types';
 import { register } from './services/auth.service';
+import { saveAuthSession } from '../../shared/services/auth-storage';
 import logoPharmacy from '../../assets/logo_pharmacy.png';
 
 interface RegisterPageProps {
@@ -48,6 +49,7 @@ function RegisterPage({ onRegister,   onShowLogin, }: RegisterPageProps) {
     password_confirmation: confirmPassword,
 });
 
+      saveAuthSession(response);
       onRegister(response.user);
     } catch (error) {
       setErrorMessage(

@@ -1,6 +1,7 @@
 import { LogOut } from 'lucide-react';
 
 import type { User } from '../types';
+import NotificationCenter from '../../modules/notifications/NotificationCenter';
 import UserAvatar from './UserAvatar';
 
 interface Props {
@@ -16,6 +17,8 @@ function Navbar({ user, onLogout }: Props) {
       </div>
 
       <div className="navbar-actions">
+        <NotificationCenter user={user} />
+
         <div className="navbar-profile">
           <UserAvatar
             user={user}
