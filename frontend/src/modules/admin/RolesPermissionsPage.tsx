@@ -49,7 +49,12 @@ const roles: UserRole[] = [
 
 const statuses: UserStatus[] = ['Activo', 'Inactivo'];
 
-function RolesPermissionsPage() {
+interface Props {
+  currentUser: User;
+  onCurrentUserUpdated: (user: User) => void;
+}
+
+function RolesPermissionsPage({ currentUser, onCurrentUserUpdated }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [users, setUsers] = useState<User[]>([]);
@@ -237,7 +242,13 @@ function RolesPermissionsPage() {
       const dataToSave = buildDataToSave();
 
       if (editingUser) {
-        await updateUser(editingUser.id, dataToSave);
+        const updatedUser = await updateUser(editingUser.id, dataToSave);
+
+        if (updatedUser.id === currentUser.id) {
+          onCurrentUserUpdated(updatedUser);
+        }
+
+        setEditingUser(updatedUser);
         setSuccessMessage('Usuario actualizado correctamente.');
       } else {
         await createUser(dataToSave);

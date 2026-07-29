@@ -55,6 +55,11 @@ function App() {
     setCurrentUser(user);
   };
 
+  const handleCurrentUserUpdated = (user: User) => {
+    setCurrentUser(user);
+    updateStoredUser(user);
+  };
+
   const handleLogout = () => {
     void disablePushNotifications()
       .catch(() => undefined)
@@ -95,7 +100,13 @@ function App() {
       return <DoctorLayout user={currentUser} onLogout={handleLogout} />;
 
     case 'Administrador Sistema':
-      return <AdminLayout user={currentUser} onLogout={handleLogout} />;
+      return (
+        <AdminLayout
+          user={currentUser}
+          onLogout={handleLogout}
+          onCurrentUserUpdated={handleCurrentUserUpdated}
+        />
+      );
 
     case 'Administrador Farmacia':
       return <PharmacyLayout user={currentUser} onLogout={handleLogout} />;

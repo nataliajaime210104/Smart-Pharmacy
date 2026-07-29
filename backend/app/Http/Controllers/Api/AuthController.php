@@ -123,7 +123,16 @@ class AuthController extends Controller
             return null;
         }
 
-        return '/api/profile-photos/user/' . $user->id;
+        return '/api/profile-photos/user/' . $user->id . '?v=' . $this->profilePhotoVersion($user);
+    }
+
+    private function profilePhotoVersion(User $user): string
+    {
+        if (!empty($user->profile_photo_path)) {
+            return rawurlencode(pathinfo($user->profile_photo_path, PATHINFO_FILENAME));
+        }
+
+        return rawurlencode((string) ($user->updated_at?->getTimestamp() ?? $user->id));
     }
 
     private function deviceName(Request $request): string

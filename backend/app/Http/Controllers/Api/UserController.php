@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -161,7 +162,7 @@ class UserController extends Controller
 
         if (file_exists($legacyPath)) {
             return response()->file($legacyPath, [
-                'Cache-Control' => 'public, max-age=86400',
+                'Cache-Control' => 'public, max-age=31536000, immutable',
             ]);
         }
 
@@ -176,7 +177,7 @@ class UserController extends Controller
             if ($binary !== false) {
                 return response($binary, 200, [
                     'Content-Type' => $user->profile_photo_mime ?: 'image/jpeg',
-                    'Cache-Control' => 'public, max-age=86400',
+                    'Cache-Control' => 'public, max-age=31536000, immutable',
                     'Content-Length' => (string) strlen($binary),
                 ]);
             }
@@ -191,7 +192,7 @@ class UserController extends Controller
 
             if (file_exists($legacyPath)) {
                 return response()->file($legacyPath, [
-                    'Cache-Control' => 'public, max-age=86400',
+                    'Cache-Control' => 'public, max-age=31536000, immutable',
                 ]);
             }
         }
@@ -220,7 +221,7 @@ class UserController extends Controller
         }
 
         $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
-        $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $extension;
+        $fileName = 'user-' . $user->id . '-' . Str::uuid() . '.' . $extension;
 
         $user->update([
             'profile_photo_path' => 'profile-photos/' . $fileName,
@@ -313,6 +314,15 @@ class UserController extends Controller
             return null;
         }
 
-        return '/api/profile-photos/user/' . $user->id;
+        return '/api/profile-photos/user/' . $user->id . '?v=' . $this->profilePhotoVersion($user);
+    }
+
+    private function profilePhotoVersion(User $user): string
+    {
+        if (!empty($user->profile_photo_path)) {
+            return rawurlencode(pathinfo($user->profile_photo_path, PATHINFO_FILENAME));
+        }
+
+        return rawurlencode((string) ($user->updated_at?->getTimestamp() ?? $user->id));
     }
 }

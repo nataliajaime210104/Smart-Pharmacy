@@ -116,9 +116,10 @@ const adminPageTitles: Record<AdminPage, string> = {
 interface Props {
   user: User;
   onLogout: () => void;
+  onCurrentUserUpdated: (user: User) => void;
 }
 
-function AdminLayout({ user, onLogout }: Props) {
+function AdminLayout({ user, onLogout, onCurrentUserUpdated }: Props) {
   const [currentPage, setCurrentPage] = useState<AdminPage>(getInitialAdminPage);
 
   useDocumentTitle(
@@ -156,7 +157,12 @@ function AdminLayout({ user, onLogout }: Props) {
         return <InventoryPage />;
 
       case 'roles':
-        return <RolesPermissionsPage />;
+        return (
+          <RolesPermissionsPage
+            currentUser={user}
+            onCurrentUserUpdated={onCurrentUserUpdated}
+          />
+        );
 
       case 'assistant':
         return <AiAssistantPage />;

@@ -38,6 +38,7 @@ function UserAvatar({ user, size = 'md', className = '' }: Props) {
     <div className={`user-avatar user-avatar-${size} ${className}`}>
       {showPhoto ? (
         <img
+          key={user.profilePhotoUrl ?? 'profile-photo'}
           src={user.profilePhotoUrl ?? undefined}
           alt={user.name}
           onError={() => setImageFailed(true)}
