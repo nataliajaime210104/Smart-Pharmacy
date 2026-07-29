@@ -71,17 +71,24 @@ class PatientController extends Controller
 
                 if ($request->hasFile('profilePhoto')) {
                     $file = $request->file('profilePhoto');
+                    $photoBinary = file_get_contents($file->getRealPath());
 
-                    $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+                    if ($photoBinary === false) {
+                        throw new \RuntimeException('No fue posible leer la fotografía seleccionada.');
+                    }
 
-                    $photoPath = $file->storeAs(
-                        'profile-photos',
-                        $fileName,
-                        'public'
-                    );
+                    $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+                    $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $extension;
 
                     $user->update([
-                        'profile_photo_path' => $photoPath,
+                        // Se conserva un identificador legible, pero la imagen real
+                        // se almacena en PostgreSQL para que sobreviva a reinicios
+                        // y despliegues del servicio de Render.
+                        'profile_photo_path' => 'profile-photos/' . $fileName,
+                        'profile_photo_data' => base64_encode($photoBinary),
+                        'profile_photo_mime' => $file->getMimeType()
+                            ?: $file->getClientMimeType()
+                            ?: 'image/jpeg',
                     ]);
 
                     $user->refresh();
@@ -434,10 +441,10 @@ class PatientController extends Controller
 
     private function getProfilePhotoUrl(User $user): ?string
     {
-        if (empty($user->profile_photo_path)) {
+        if (empty($user->profile_photo_path) && empty($user->profile_photo_data)) {
             return null;
         }
 
-        return '/api/profile-photos/' . basename($user->profile_photo_path);
+        return '/api/profile-photos/user/' . $user->id;
     }
 }

@@ -18,6 +18,7 @@ class Prescription extends Model
         'signature_hash',
         'verification_code',
         'signature_image_path',
+        'signature_image_data',
         'inventory_deducted_at',
     ];
 

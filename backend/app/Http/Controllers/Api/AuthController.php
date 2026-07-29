@@ -119,11 +119,11 @@ class AuthController extends Controller
 
     private function getProfilePhotoUrl(User $user): ?string
     {
-        if (empty($user->profile_photo_path)) {
+        if (empty($user->profile_photo_path) && empty($user->profile_photo_data)) {
             return null;
         }
 
-        return '/api/profile-photos/' . basename($user->profile_photo_path);
+        return '/api/profile-photos/user/' . $user->id;
     }
 
     private function deviceName(Request $request): string

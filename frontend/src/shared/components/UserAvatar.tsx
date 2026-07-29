@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { User } from '../types';
 
 interface Props {
@@ -25,13 +26,21 @@ function getInitials(name: string) {
 
 function UserAvatar({ user, size = 'md', className = '' }: Props) {
   const initials = getInitials(user.name);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [user.profilePhotoUrl]);
+
+  const showPhoto = Boolean(user.profilePhotoUrl) && !imageFailed;
 
   return (
     <div className={`user-avatar user-avatar-${size} ${className}`}>
-      {user.profilePhotoUrl ? (
+      {showPhoto ? (
         <img
-          src={user.profilePhotoUrl}
+          src={user.profilePhotoUrl ?? undefined}
           alt={user.name}
+          onError={() => setImageFailed(true)}
         />
       ) : (
         <span>{initials}</span>

@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Storage;
 use App\Services\MedicationScheduleGenerator;
 use App\Services\InventoryAlertService;
 use App\Services\NotificationDispatcher;
@@ -176,13 +175,6 @@ class PrescriptionController extends Controller
             $signedAt->format('YmdHis') . '-' .
             Str::lower(Str::random(6)) . '.png';
 
-        if (!Storage::disk('public')->put($signatureFileName, $signatureBinary)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No fue posible guardar la firma digital.',
-            ], 500);
-        }
-
         try {
             $transactionResult = DB::transaction(function () use (
                 $prescription,
@@ -190,6 +182,7 @@ class PrescriptionController extends Controller
                 $signedAt,
                 $verificationCode,
                 $signatureFileName,
+                $base64Signature,
             ) {
                 $lockedPrescription = Prescription::query()
                     ->whereKey($prescription->id)
@@ -241,7 +234,11 @@ class PrescriptionController extends Controller
                     'signed_by_name' => $validated['signerName'],
                     'signature_hash' => hash('sha256', json_encode($signaturePayload)),
                     'verification_code' => $verificationCode,
+                    // La ruta se conserva como identificador para mantener
+                    // compatibilidad. La imagen real se guarda en PostgreSQL
+                    // para que no se pierda al reiniciar o desplegar Render.
                     'signature_image_path' => $signatureFileName,
+                    'signature_image_data' => $base64Signature,
                     'inventory_deducted_at' => $signedAt,
                 ]);
 
@@ -250,7 +247,6 @@ class PrescriptionController extends Controller
                 ];
             });
         } catch (\Throwable $exception) {
-            Storage::disk('public')->delete($signatureFileName);
             throw $exception;
         }
 
@@ -319,9 +315,13 @@ class PrescriptionController extends Controller
 
             $signatureImage = null;
 
-            if (!empty($prescription->signature_image_path)) {
+            if (!empty($prescription->signature_image_data)) {
+                $signatureImage = 'data:image/png;base64,' .
+                    $prescription->signature_image_data;
+            } elseif (!empty($prescription->signature_image_path)) {
+                // Compatibilidad con firmas creadas antes de almacenar la
+                // imagen directamente en PostgreSQL.
                 $signaturePath = ltrim($prescription->signature_image_path, '/');
-
                 $fullSignaturePath = storage_path('app/public/' . $signaturePath);
 
                 if (file_exists($fullSignaturePath)) {

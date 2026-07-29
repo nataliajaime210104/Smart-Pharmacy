@@ -134,19 +134,69 @@ class UserController extends Controller
         ]);
     }
 
-    public function profilePhoto(string $filename)
+    public function profilePhoto(User $user)
+    {
+        return $this->profilePhotoResponse($user);
+    }
+
+    /**
+     * Mantiene compatibilidad con URLs guardadas por versiones anteriores.
+     */
+    public function profilePhotoByFilename(string $filename)
     {
         $safeFilename = basename($filename);
 
-        $path = storage_path('app/public/profile-photos/' . $safeFilename);
+        $user = User::query()
+            ->where(function ($query) use ($safeFilename) {
+                $query->where('profile_photo_path', $safeFilename)
+                    ->orWhere('profile_photo_path', 'like', '%/' . $safeFilename);
+            })
+            ->first();
 
-        if (!file_exists($path)) {
-            abort(404);
+        if ($user) {
+            return $this->profilePhotoResponse($user);
         }
 
-        return response()->file($path, [
-            'Cache-Control' => 'public, max-age=86400',
-        ]);
+        $legacyPath = storage_path('app/public/profile-photos/' . $safeFilename);
+
+        if (file_exists($legacyPath)) {
+            return response()->file($legacyPath, [
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        }
+
+        abort(404);
+    }
+
+    private function profilePhotoResponse(User $user)
+    {
+        if (!empty($user->profile_photo_data)) {
+            $binary = base64_decode($user->profile_photo_data, true);
+
+            if ($binary !== false) {
+                return response($binary, 200, [
+                    'Content-Type' => $user->profile_photo_mime ?: 'image/jpeg',
+                    'Cache-Control' => 'public, max-age=86400',
+                    'Content-Length' => (string) strlen($binary),
+                ]);
+            }
+        }
+
+        // Compatibilidad con fotografías subidas antes de guardar archivos
+        // directamente en PostgreSQL.
+        if (!empty($user->profile_photo_path)) {
+            $legacyPath = storage_path(
+                'app/public/profile-photos/' . basename($user->profile_photo_path)
+            );
+
+            if (file_exists($legacyPath)) {
+                return response()->file($legacyPath, [
+                    'Cache-Control' => 'public, max-age=86400',
+                ]);
+            }
+        }
+
+        abort(404);
     }
 
     private function saveProfilePhotoIfPresent(Request $request, User $user): void
@@ -155,22 +205,29 @@ class UserController extends Controller
             return;
         }
 
+        // Elimina únicamente una posible copia local heredada. La fotografía
+        // principal se guarda en PostgreSQL porque el filesystem de Render es
+        // efímero cuando no existe un disco persistente.
         if (!empty($user->profile_photo_path)) {
             Storage::disk('public')->delete($user->profile_photo_path);
         }
 
         $file = $request->file('profilePhoto');
+        $photoBinary = file_get_contents($file->getRealPath());
 
-        $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $file->getClientOriginalExtension();
+        if ($photoBinary === false) {
+            throw new \RuntimeException('No fue posible leer la fotografía seleccionada.');
+        }
 
-        $photoPath = $file->storeAs(
-            'profile-photos',
-            $fileName,
-            'public'
-        );
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $fileName = 'user-' . $user->id . '-' . now()->format('YmdHis') . '.' . $extension;
 
         $user->update([
-            'profile_photo_path' => $photoPath,
+            'profile_photo_path' => 'profile-photos/' . $fileName,
+            'profile_photo_data' => base64_encode($photoBinary),
+            'profile_photo_mime' => $file->getMimeType()
+                ?: $file->getClientMimeType()
+                ?: 'image/jpeg',
         ]);
     }
 
@@ -252,10 +309,10 @@ class UserController extends Controller
 
     private function getProfilePhotoUrl(User $user): ?string
     {
-        if (empty($user->profile_photo_path)) {
+        if (empty($user->profile_photo_path) && empty($user->profile_photo_data)) {
             return null;
         }
 
-        return '/api/profile-photos/' . basename($user->profile_photo_path);
+        return '/api/profile-photos/user/' . $user->id;
     }
 }

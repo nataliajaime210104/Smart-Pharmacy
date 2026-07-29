@@ -18,6 +18,8 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
     'role',
     'status',
     'profile_photo_path',
+    'profile_photo_data',
+    'profile_photo_mime',
 ])]
 #[Hidden([
     'password',
